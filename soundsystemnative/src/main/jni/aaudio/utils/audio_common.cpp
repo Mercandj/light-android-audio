@@ -18,34 +18,37 @@
 
 
 static const int32_t audioFormatEnum[] = {
-    AAUDIO_FORMAT_INVALID,
-    AAUDIO_FORMAT_UNSPECIFIED,
-    AAUDIO_FORMAT_PCM_I16,
-    AAUDIO_FORMAT_PCM_FLOAT,
+        AAUDIO_FORMAT_INVALID,
+        AAUDIO_FORMAT_UNSPECIFIED,
+        AAUDIO_FORMAT_PCM_I16,
+        AAUDIO_FORMAT_PCM_FLOAT,
 };
-static const int32_t audioFormatCount = sizeof(audioFormatEnum)/
+static const int32_t audioFormatCount = sizeof(audioFormatEnum) /
                                         sizeof(audioFormatEnum[0]);
 
 static const uint32_t sampleFormatBPP[] = {
-    0xffff,
-    0xffff,
-    16, //I16
-    32, //FLOAT
+        0xffff,
+        0xffff,
+        16, //I16
+        32, //FLOAT
 };
+
 uint16_t SampleFormatToBpp(aaudio_format_t format) {
     for (int32_t i = 0; i < audioFormatCount; ++i) {
-      if (audioFormatEnum[i] == format)
-        return sampleFormatBPP[i];
+        if (audioFormatEnum[i] == format)
+            return sampleFormatBPP[i];
     }
     return 0xffff;
 }
-static const char * audioFormatStr[] = {
-    "AAUDIO_FORMAT_INVALID", // = -1,
-    "AAUDIO_FORMAT_UNSPECIFIED", // = 0,
-    "AAUDIO_FORMAT_PCM_I16",
-    "AAUDIO_FORMAT_PCM_FLOAT",
+
+static const char *audioFormatStr[] = {
+        "AAUDIO_FORMAT_INVALID", // = -1,
+        "AAUDIO_FORMAT_UNSPECIFIED", // = 0,
+        "AAUDIO_FORMAT_PCM_I16",
+        "AAUDIO_FORMAT_PCM_FLOAT",
 };
-const char* FormatToString(aaudio_format_t format) {
+
+const char *FormatToString(aaudio_format_t format) {
     for (int32_t i = 0; i < audioFormatCount; ++i) {
         if (audioFormatEnum[i] == format)
             return audioFormatStr[i];
@@ -53,7 +56,7 @@ const char* FormatToString(aaudio_format_t format) {
     return "UNKNOW_AUDIO_FORMAT";
 }
 
-void PrintAudioStreamInfo(const AAudioStream * stream) {
+void PrintAudioStreamInfo(const AAudioStream *stream) {
 #define STREAM_CALL(c) AAudioStream_##c((AAudioStream*)stream)
     LOGI("StreamID: %p", stream);
 
@@ -64,17 +67,17 @@ void PrintAudioStreamInfo(const AAudioStream * stream) {
     LOGI("SampleRate: %d", STREAM_CALL(getSampleRate));
     LOGI("SamplesPerFrame: %d", STREAM_CALL(getSamplesPerFrame));
     LOGI("DeviceId: %d", STREAM_CALL(getDeviceId));
-    LOGI("Format: %s",  FormatToString(STREAM_CALL(getFormat)));
+    LOGI("Format: %s", FormatToString(STREAM_CALL(getFormat)));
     LOGI("SharingMode: %s", (STREAM_CALL(getSharingMode)) == AAUDIO_SHARING_MODE_EXCLUSIVE ?
-             "execlusive mode" : "sharing mode");
-    aaudio_direction_t  dir = STREAM_CALL(getDirection);
+                            "execlusive mode" : "sharing mode");
+    aaudio_direction_t dir = STREAM_CALL(getDirection);
     LOGI("Direction: %d", dir);
     if (dir == AAUDIO_DIRECTION_OUTPUT) {
-        LOGI("FramesReadByDevice: %d", (int32_t)STREAM_CALL(getFramesRead));
-        LOGI("FramesWriteByApp: %d", (int32_t)STREAM_CALL(getFramesWritten));
+        LOGI("FramesReadByDevice: %d", (int32_t) STREAM_CALL(getFramesRead));
+        LOGI("FramesWriteByApp: %d", (int32_t) STREAM_CALL(getFramesWritten));
     } else {
-        LOGI("FramesReadByApp: %d", (int32_t)STREAM_CALL(getFramesRead));
-        LOGI("FramesWriteByDevice: %d", (int32_t)STREAM_CALL(getFramesWritten));
+        LOGI("FramesReadByApp: %d", (int32_t) STREAM_CALL(getFramesRead));
+        LOGI("FramesWriteByDevice: %d", (int32_t) STREAM_CALL(getFramesWritten));
     }
 #undef SREAM_CALL
 }

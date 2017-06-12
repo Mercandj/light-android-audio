@@ -16,6 +16,7 @@
  */
 #ifndef __SAMPLE_ANDROID_DEBUG_H__
 #define __SAMPLE_ANDROID_DEBUG_H__
+
 #include <android/log.h>
 
 #if 1

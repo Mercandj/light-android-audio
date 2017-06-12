@@ -19,16 +19,17 @@
 
 #include <math.h>
 
-class SineGenerator
-{
+class SineGenerator {
 public:
     SineGenerator() {}
+
     virtual ~SineGenerator() = default;
 
     void setup(double frequency, double frameRate) {
         mFrameRate = frameRate;
         mPhaseIncrement = frequency * M_PI * 2 / frameRate;
     }
+
     void setup(double frequency, double frameRate, float amplitude) {
         setup(frequency, frameRate);
         mAmplitude = amplitude;
@@ -53,6 +54,7 @@ public:
             advancePhase();
         }
     }
+
     void render(float *buffer, int32_t channelStride, int32_t numFrames) {
         int sampleIndex = 0;
         for (int i = 0; i < numFrames; i++) {
@@ -91,8 +93,8 @@ private:
     double mPhaseIncrementHigh;
     double mUpScaler = 1.0;
     double mDownScaler = 1.0;
-    bool   mGoingUp = false;
-    bool   mSweeping = false;
+    bool mGoingUp = false;
+    bool mSweeping = false;
 };
 
 #endif /* SINE_GENERATOR_H */
