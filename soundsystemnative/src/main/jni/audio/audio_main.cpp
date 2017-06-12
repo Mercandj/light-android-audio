@@ -99,36 +99,23 @@ Java_com_mercandalli_android_sdk_audio_SoundSystemNative_nativeCreate(
         JNIEnv *env,
         jclass type) {
 
-    LOGD("Coucou 1");
     memset(&engine, 0, sizeof(engine));
-
-    LOGD("Coucou 2");
 
     engine.sampleChannels_ = AUDIO_SAMPLE_CHANNELS;
     engine.sampleFormat_ = AAUDIO_FORMAT_PCM_I16;
     engine.bitsPerSample_ = SampleFormatToBpp(engine.sampleFormat_);
 
-    LOGD("Coucou 3..");
-    AAudioStreamBuilder *builder_;
-    AAudio_createStreamBuilder(&builder_);
-
-    /*
     // Create an Output Stream
     StreamBuilder builder;
-    LOGD("Coucou 3 bis");
     engine.playStream_ = builder.CreateStream(
             engine.sampleFormat_, engine.sampleChannels_, AAUDIO_SHARING_MODE_SHARED,
             AAUDIO_DIRECTION_OUTPUT, INVALID_AUDIO_PARAM, dataCallback, &engine);
-    LOGD("Coucou 4");
     // this sample only supports PCM_I16 format
     if (!engine.playStream_ ||
         engine.sampleFormat_ != AAudioStream_getFormat(engine.playStream_)) {
         assert(false);
         return JNI_FALSE;
     }
-
-
-    LOGD("Coucou 5");
 
     PrintAudioStreamInfo(engine.playStream_);
     engine.sampleRate_ = AAudioStream_getSampleRate(engine.playStream_);
@@ -139,15 +126,11 @@ Java_com_mercandalli_android_sdk_audio_SoundSystemNative_nativeCreate(
                                        engine.framesPerBurst_);
     engine.bufSizeInFrames_ = engine.framesPerBurst_;
 
-    LOGD("Coucou 6");
-
     // prepare for data generator
     engine.sineOscLeft = new SineGenerator;
     engine.sineOscLeft->setup(440.0, engine.sampleRate_, 0.25);
     engine.sineOscRight = new SineGenerator;
     engine.sineOscRight->setup(660.0, engine.sampleRate_, 0.25);
-
-    LOGD("Coucou 7");
 
     aaudio_result_t result = AAudioStream_requestStart(engine.playStream_);
     if (result != AAUDIO_OK) {
@@ -156,7 +139,6 @@ Java_com_mercandalli_android_sdk_audio_SoundSystemNative_nativeCreate(
     }
 
     engine.underRunCount_ = AAudioStream_getXRunCount(engine.playStream_);
-    */
     return JNI_TRUE;
 }
 

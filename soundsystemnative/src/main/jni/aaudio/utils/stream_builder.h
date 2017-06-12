@@ -27,9 +27,9 @@
 class StreamBuilder {
 public:
     explicit StreamBuilder() {
-        LOGD("Coucou A");
+        LOGD("Pre crash...");
         aaudio_result_t result = AAudio_createStreamBuilder(&builder_);
-        LOGD("Coucou B");
+        LOGD("Post crash...");
         if (result != AAUDIO_OK && !builder_) {
             assert(false);
         }

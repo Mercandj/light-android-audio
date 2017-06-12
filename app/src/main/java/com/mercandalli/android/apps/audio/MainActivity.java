@@ -19,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // initialize native audio system
-        //created = soundSystem.create();
+        created = soundSystem.create();
     }
 
     @Override
@@ -30,10 +30,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        /*if (!created) {
+        if (!created) {
             return super.onTouchEvent(event);
-        }*/
-        created = soundSystem.create();
+        }
         int action = MotionEventCompat.getActionMasked(event);
         switch (action) {
             case (MotionEvent.ACTION_DOWN):
