@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #ifndef AAUDIO_STREAM_BIULDER_H
 #define AAUDIO_STREAM_BIULDER_H
 
 #include <cassert>
 
-// Replace this include with NDK's AAudio.h when available
+//Replace this include with NDK's AAudio.h when available
 #include <aaudio/AAudio.h>
 
 #define INVALID_AUDIO_PARAM 0
@@ -27,9 +26,7 @@
 class StreamBuilder {
 public:
     explicit StreamBuilder() {
-        LOGD("Pre crash...");
         aaudio_result_t result = AAudio_createStreamBuilder(&builder_);
-        LOGD("Post crash...");
         if (result != AAUDIO_OK && !builder_) {
             assert(false);
         }

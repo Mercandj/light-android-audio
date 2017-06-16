@@ -14,19 +14,16 @@
  * limitations under the License.
  */
 
-
 #ifndef AAUDIO_AUDIO_COMMON_H
 #define AAUDIO_AUDIO_COMMON_H
 
-#include <chrono>
 #include <aaudio/AAudio.h>
-#include "android/android_debug.h"
-#include "debug_utils.h"
+#include <utils/android_debug.h>
 
 /*
  * Audio Sample Controls...
  */
-#define AUDIO_SAMPLE_CHANNELS               1
+#define AUDIO_SAMPLE_CHANNELS 2
 
 uint16_t SampleFormatToBpp(aaudio_format_t format);
 
