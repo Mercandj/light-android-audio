@@ -54,15 +54,8 @@ void SoundSystem::fillDataBuffer() {
         _extractionStartTime = now_ms();
     }
 
-#ifdef FLOAT_PLAYER
-    for (int i = 0; i < _bufferSize; i++) {
-        _extractedData[_positionExtract + i] = _soundBuffer[i] * (1.0f / ((float) SHRT_MAX));
-    }
-#else
     int sizeBuffer = _bufferSize * sizeof(short);
     memmove(_extractedData + _positionExtract, _soundBuffer, sizeBuffer);
-#endif
-
     _positionExtract += _bufferSize;
 }
 
@@ -239,17 +232,6 @@ void SoundSystem::initAudioPlayer() {
     loc_bufq.numBuffers = 1;
 
     // format of data
-#ifdef FLOAT_PLAYER
-    SLAndroidDataFormat_PCM_EX dataFormat;
-    dataFormat.formatType = SL_ANDROID_DATAFORMAT_PCM_EX;
-    dataFormat.numChannels = 2; // Stereo sound.
-    dataFormat.sampleRate = (SLuint32) _sampleRate * 1000;
-    dataFormat.bitsPerSample = SL_PCMSAMPLEFORMAT_FIXED_32;
-    dataFormat.containerSize = SL_PCMSAMPLEFORMAT_FIXED_32;
-    dataFormat.channelMask = SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT;
-    dataFormat.endianness = SL_BYTEORDER_LITTLEENDIAN;
-    dataFormat.representation = SL_ANDROID_PCM_REPRESENTATION_FLOAT;
-#else
     SLDataFormat_PCM dataFormat;
     dataFormat.formatType = SL_DATAFORMAT_PCM;
     dataFormat.numChannels = 2; // Stereo sound.
@@ -258,7 +240,6 @@ void SoundSystem::initAudioPlayer() {
     dataFormat.containerSize = SL_PCMSAMPLEFORMAT_FIXED_16;
     dataFormat.channelMask = SL_SPEAKER_FRONT_LEFT | SL_SPEAKER_FRONT_RIGHT;
     dataFormat.endianness = SL_BYTEORDER_LITTLEENDIAN;
-#endif
 
     SLDataSource audioSrc;
     audioSrc.pLocator = &loc_bufq;

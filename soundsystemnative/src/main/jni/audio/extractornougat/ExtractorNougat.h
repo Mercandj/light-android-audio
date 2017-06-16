@@ -2,8 +2,6 @@
 // Created by Frederic on 26/03/2017.
 //
 
-#ifdef MEDIACODEC_EXTRACTOR
-
 #ifndef MINI_SOUND_SYSTEM_EXTRACTORNOUGAT_H
 #define MINI_SOUND_SYSTEM_EXTRACTORNOUGAT_H
 
@@ -34,7 +32,7 @@ typedef struct {
     bool isBufferInitialized;
     unsigned int extractionPosition;
 
-} workerdata;
+} WorkerData;
 
 enum {
     kMsgCodecBuffer,
@@ -49,7 +47,7 @@ class MyLooper : public Looper {
 };
 
 static MyLooper *mlooper = NULL;
-static workerdata data = {NULL, NULL, false, false, false, false, NULL};
+static WorkerData data = {NULL, NULL, false, false, false, false, NULL};
 
 class ExtractorNougat {
 public:
@@ -75,5 +73,3 @@ private:
 };
 
 #endif //MINI_SOUND_SYSTEM_EXTRACTORNOUGAT_H
-
-#endif

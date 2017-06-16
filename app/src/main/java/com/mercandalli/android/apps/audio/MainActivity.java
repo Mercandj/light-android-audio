@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.DisplayMetrics;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -24,29 +23,21 @@ import com.mercandalli.android.sdk.audio.SoundSystem;
 import com.mercandalli.android.sdk.audio.listener.SSExtractionObserver;
 import com.mercandalli.android.sdk.audio.listener.SSPlayingStatusObserver;
 
-import java.util.Arrays;
-
 /**
  * Simple activity launching the sound system.
  */
 public class MainActivity extends AppCompatActivity {
-
-    @SuppressWarnings("unused")
-    private static final String TAG = "MainActivity";
-
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
-
-    private static final int MUSIC_LENGTH_DIVISION = 40;
 
     /**
      * UI
      */
-    private Button mToggleStop;
-    private Button mBtnExtractFile;
-    private TextView mTvSoundSystemStatus;
-    private TextView mTvPercentageDisplayed;
-    private ToggleButton mTogglePlayPause;
-    //private SpectrumGLSurfaceView mSpectrum;
+    private Button toggleStop;
+    private Button btnExtractFile;
+    private ToggleButton togglePlayPause;
+
+    private long extractionStartTimestamp;
+    private long extractionDusration;
 
     /**
      * Sound system
@@ -78,48 +69,28 @@ public class MainActivity extends AppCompatActivity {
 
     private void initUI() {
         // extract button
-        mBtnExtractFile = (Button) findViewById(R.id.toggle_extract_file);
-        mBtnExtractFile.setOnClickListener(mOnClickListener);
+        btnExtractFile = (Button) findViewById(R.id.toggle_extract_file);
+        btnExtractFile.setOnClickListener(mOnClickListener);
 
         // play pause button
-        mTogglePlayPause = (ToggleButton) findViewById(R.id.toggle_play_pause);
-        mTogglePlayPause.setOnCheckedChangeListener(mOnCheckedChangeListener);
+        togglePlayPause = (ToggleButton) findViewById(R.id.toggle_play_pause);
+        togglePlayPause.setOnCheckedChangeListener(mOnCheckedChangeListener);
 
         // stop button
-        mToggleStop = (Button) findViewById(R.id.btn_stop);
-        mToggleStop.setOnClickListener(mOnClickListener);
-
-        // tv sound system status
-        mTvSoundSystemStatus = (TextView) findViewById(R.id.tv_sound_system_status);
-
-        // tv percentage displayed
-        mTvPercentageDisplayed = (TextView) findViewById(R.id.tv_percentage_displayed);
+        toggleStop = (Button) findViewById(R.id.btn_stop);
+        toggleStop.setOnClickListener(mOnClickListener);
 
         if (mSoundSystem.isLoaded()) {
-            mTogglePlayPause.setEnabled(true);
-            mToggleStop.setEnabled(true);
-            mBtnExtractFile.setEnabled(false);
+            togglePlayPause.setEnabled(true);
+            toggleStop.setEnabled(true);
+            btnExtractFile.setEnabled(false);
         } else {
-            mBtnExtractFile.setEnabled(true);
-            mTogglePlayPause.setEnabled(false);
-            mToggleStop.setEnabled(false);
+            btnExtractFile.setEnabled(true);
+            togglePlayPause.setEnabled(false);
+            toggleStop.setEnabled(false);
         }
 
-        mTogglePlayPause.setChecked(mSoundSystem.isPlaying());
-
-        //mSpectrum = (SpectrumGLSurfaceView) findViewById(R.id.spectrum);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        //mSpectrum.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        //mSpectrum.onPause();
-        super.onPause();
+        togglePlayPause.setChecked(mSoundSystem.isPlaying());
     }
 
     @Override
@@ -179,52 +150,45 @@ public class MainActivity extends AppCompatActivity {
         tvAvailableCodecs.setText(stringBuilder.toString());
     }
 
+    private void log(String message) {
+        final TextView textView = (TextView) findViewById(R.id.tv_logs);
+        textView.setText(message + "\n" + textView.getText().toString());
+    }
+
     private SSExtractionObserver mSSExtractionObserver = new SSExtractionObserver() {
         @Override
         public void onExtractionStarted() {
-            mBtnExtractFile.setEnabled(false);
-            mTvSoundSystemStatus.setText("Extraction started");
+            extractionStartTimestamp = System.currentTimeMillis();
+            btnExtractFile.setEnabled(false);
+            log("Extraction started");
         }
 
         @Override
         public void onExtractionCompleted() {
-            mTogglePlayPause.setEnabled(true);
-            mToggleStop.setEnabled(true);
-            mTvSoundSystemStatus.setText("Extraction ended");
-
-            mTvPercentageDisplayed.setVisibility(View.VISIBLE);
-            mTvPercentageDisplayed.setText("Music displayed : 1 / " + MUSIC_LENGTH_DIVISION + " of the total length");
-
-            final DisplayMetrics metrics = new DisplayMetrics();
-            getWindowManager().getDefaultDisplay().getMetrics(metrics);
-
-            // we only want to display 1/40 of all data
-            final short[] extractedData = mSoundSystem.getExtractedDataMono();
-            final short[] reducedData = Arrays.copyOf(extractedData, extractedData.length / MUSIC_LENGTH_DIVISION);
-
-            //mSpectrum.drawData(reducedData, metrics.widthPixels);
-            //mSpectrum.requestRender();
+            extractionDusration = System.currentTimeMillis() - extractionStartTimestamp;
+            togglePlayPause.setEnabled(true);
+            toggleStop.setEnabled(true);
+            log("Extraction ended");
+            log("Extraction duration " + (extractionDusration / 1_000f) + "s");
         }
     };
 
     private SSPlayingStatusObserver mSSPlayingStatusObserver = new SSPlayingStatusObserver() {
         @Override
         public void onPlayingStatusDidChange(final boolean playing) {
-            mTvSoundSystemStatus.setText(playing
-                    ? "Playing"
-                    : "Pause");
+            log(playing ? "Playing" : "Pause");
         }
 
         @Override
         public void onEndOfMusic() {
-            mTogglePlayPause.setChecked(false);
-            mTvSoundSystemStatus.setText("Track finished");
+            togglePlayPause.setChecked(false);
+            log("Track finished");
         }
 
         @Override
         public void onStopTrack() {
-            mTogglePlayPause.setChecked(false);
-            mTvSoundSystemStatus.setText("Track stopped");
+            togglePlayPause.setChecked(false);
+            log("Track stopped");
         }
     };
 
@@ -269,5 +233,4 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     };
-
 }

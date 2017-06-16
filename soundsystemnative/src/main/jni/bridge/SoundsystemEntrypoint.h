@@ -17,13 +17,9 @@ static SoundSystem *_soundSystem;
 
 static SoundSystemCallback *_soundSystemCallback;
 
-#ifdef MEDIACODEC_EXTRACTOR
 static ExtractorNougat *_extractorNougat;
-#endif
 
-#ifdef AAUDIO_API
 static AAudioManager *_aaudio_manager;
-#endif
 
 extern "C" {
 

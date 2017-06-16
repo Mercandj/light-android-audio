@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-#ifdef MEDIACODEC_EXTRACTOR
-
 #include "Looper.h"
 
 void *Looper::trampoline(void *p) {
@@ -116,6 +114,3 @@ void Looper::quit() {
 void Looper::handle(int what, void *obj) {
     LOGV("dropping msg %d %p", what, obj);
 }
-
-#endif
-

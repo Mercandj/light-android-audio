@@ -10,8 +10,8 @@ model {
         ldLibs.addAll(["log", "android", "atomic", "OpenSLES", "mediandk", "aaudio"])
         abiFilters.addAll(["arm64-v8a", "armeabi-v7a"])
 
-        cppFlags.addAll(["-std=c++11", "-DAAUDIO", "-DMEDIACODEC_EXTRACTOR"])
-        CFlags.addAll(["-std=c99", "-DAAUDIO", "-DMEDIACODEC_EXTRACTOR"])
+        cppFlags.addAll(["-std=c++11"])
+        CFlags.addAll(["-std=c99"])
         platformVersion = 26
         // AAudio headers are only available with API 26 but sdk 26 is not yet available
         stl "c++_static" // to access to 'thread' header, we did gnustl_static or c++_static

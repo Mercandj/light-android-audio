@@ -29,11 +29,7 @@
 
 #include "listener/SoundSystemCallback.h"
 
-#ifdef FLOAT_PLAYER
-#define AUDIO_HARDWARE_SAMPLE_TYPE float
-#else
 #define AUDIO_HARDWARE_SAMPLE_TYPE short
-#endif
 
 static void extractionEndCallback(SLPlayItf caller, void *pContext, SLuint32 event);
 

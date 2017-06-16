@@ -6,17 +6,10 @@ void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1init_1soundsyste
         jint sample_rate,
         jint frames_per_buf) {
     _soundSystemCallback = new SoundSystemCallback(env, jclass1);
-
     _soundSystem = new SoundSystem(_soundSystemCallback, sample_rate, frames_per_buf);
-
-#ifdef MEDIACODEC_EXTRACTOR
     _extractorNougat = new ExtractorNougat(_soundSystem, sample_rate);
-#endif
-
-#ifdef AAUDIO
     _aaudio_manager = new AAudioManager();
     _aaudio_manager->createEngine(_soundSystem);
-#endif
 }
 
 jboolean Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1is_1soundsystem_1init(
@@ -32,12 +25,9 @@ void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1load_1file(
     if (!isSoundSystemInit()) {
         return;
     }
-#ifdef MEDIACODEC_EXTRACTOR
     const char *urf8FileURLString = env->GetStringUTFChars(filePath, NULL);
     _extractorNougat->extract(urf8FileURLString);
-#else
-    _soundSystem->extractMusic(dataLocatorFromURLString(env, filePath));
-#endif
+    //_soundSystem->extractMusic(dataLocatorFromURLString(env, filePath));
     _soundSystem->initAudioPlayer();
 }
 
@@ -49,15 +39,12 @@ void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1play(
         return;
     }
 
-#ifdef AAUDIO
     if (play) {
         _aaudio_manager->start();
     } else {
         _aaudio_manager->stop();
     }
-#else
-    _soundSystem->play(play);
-#endif
+    //_soundSystem->play(play);
 }
 
 jboolean Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1is_1playing(
@@ -83,9 +70,7 @@ void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1stop(JNIEnv *env
         return;
     }
     _soundSystem->stop();
-#ifdef AAUDIO
     _aaudio_manager->deleteEngine();
-#endif
 }
 
 void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1extract_1and_1play(
@@ -117,23 +102,19 @@ void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1release_1soundsy
         _soundSystem = nullptr;
     }
 
-#ifdef MEDIACODEC_EXTRACTOR
     if (_extractorNougat != nullptr) {
         delete _extractorNougat;
         _extractorNougat = nullptr;
     }
-#endif
 
-#ifdef AAUDIO
     if (_aaudio_manager != nullptr) {
         delete _aaudio_manager;
         _aaudio_manager = nullptr;
     }
-#endif
 }
 
-jshortArray
-Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1get_1extracted_1data(JNIEnv *env,
+jshortArray Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1get_1extracted_1data(
+        JNIEnv *env,
                                                                                 jclass jclass1) {
     if (!isSoundSystemInit()) {
         return nullptr;
@@ -141,13 +122,7 @@ Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1get_1extracted_1data(
     unsigned int length = _soundSystem->getTotalNumberFrames() / 40;
     AUDIO_HARDWARE_SAMPLE_TYPE *tmpExtractedData = _soundSystem->getExtractedData();
 
-#ifdef FLOAT_PLAYER
-    short* extractedData = (short*)calloc(length, sizeof(short));
-    convertFloatDataToShort(tmpExtractedData, length, extractedData);
-#else
     short *extractedData = tmpExtractedData;
-#endif
-
     jshortArray jExtractedData = env->NewShortArray(length);
     if (jExtractedData == nullptr) {
         return nullptr;
@@ -156,8 +131,8 @@ Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1get_1extracted_1data(
     return jExtractedData;
 }
 
-jshortArray
-Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1get_1extracted_1data_1mono(JNIEnv *env,
+jshortArray Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1get_1extracted_1data_1mono(
+        JNIEnv *env,
                                                                                       jclass jclass1) {
     if (!isSoundSystemInit()) {
         return nullptr;
@@ -166,13 +141,7 @@ Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1get_1extracted_1data_
     AUDIO_HARDWARE_SAMPLE_TYPE *tmpExtractedData = _soundSystem->getExtractedDataMono();
     unsigned int length = _soundSystem->getTotalNumberFrames() / 2;
 
-#ifdef FLOAT_PLAYER
-    short* extractedData = (short*)calloc(length, sizeof(short));
-    convertFloatDataToShort(tmpExtractedData, length, extractedData);
-#else
     short *extractedData = tmpExtractedData;
-#endif
-
     jshortArray jExtractedData = env->NewShortArray(length);
     if (jExtractedData == nullptr) {
         return nullptr;

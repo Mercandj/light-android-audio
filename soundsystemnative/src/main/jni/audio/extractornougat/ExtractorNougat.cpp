@@ -23,9 +23,6 @@
  * In this example we use assert() for "impossible" error conditions,
  * and explicit handling and recovery for more likely error conditions.
  */
-
-#ifdef MEDIACODEC_EXTRACTOR
-
 #include "ExtractorNougat.h"
 
 //FILE* file;
@@ -36,7 +33,7 @@ static double now_ms(void) {
     return 1000.0 * res.tv_sec + (double) res.tv_nsec / 1e6;
 }
 
-void doCodecWork(workerdata *d) {
+void doCodecWork(WorkerData *d) {
     ssize_t bufidx;
     if (!d->sawInputEOS) {
         bufidx = AMediaCodec_dequeueInputBuffer(d->codec, 1000);
@@ -111,10 +108,10 @@ void doCodecWork(workerdata *d) {
 void MyLooper::handle(int what, void *obj) {
     switch (what) {
         case kMsgCodecBuffer:
-            doCodecWork((workerdata *) obj);
+            doCodecWork((WorkerData *) obj);
             break;
         case kMsgDecodeDone: {
-            workerdata *d = (workerdata *) obj;
+            WorkerData *d = (WorkerData *) obj;
             AMediaCodec_stop(d->codec);
             AMediaCodec_delete(d->codec);
             AMediaExtractor_delete(d->ex);
@@ -123,7 +120,7 @@ void MyLooper::handle(int what, void *obj) {
         }
             break;
         case kMsgPause: {
-            workerdata *d = (workerdata *) obj;
+            WorkerData *d = (WorkerData *) obj;
             if (d->isPlaying) {
                 // flush all outstanding codecbuffer messages with a no-op message
                 d->isPlaying = false;
@@ -132,7 +129,7 @@ void MyLooper::handle(int what, void *obj) {
         }
             break;
         case kMsgResume: {
-            workerdata *d = (workerdata *) obj;
+            WorkerData *d = (WorkerData *) obj;
             if (!d->isPlaying) {
                 d->isPlaying = true;
                 post(kMsgCodecBuffer, d);
@@ -162,7 +159,7 @@ bool ExtractorNougat::extract(const char *filename) {
     AMediaExtractor *ex = AMediaExtractor_new();
 
     media_status_t err = AMediaExtractor_setDataSource(ex, filename);
-    workerdata *d = &data;
+    WorkerData *workerData = &data;
 
     if (err != AMEDIA_OK) {
         LOGV("setDataSource error: %d", err);
@@ -189,28 +186,27 @@ bool ExtractorNougat::extract(const char *filename) {
             AMediaExtractor_selectTrack(ex, i);
             codec = AMediaCodec_createDecoderByType(mime);
             AMediaCodec_configure(codec, format, NULL, NULL, 0);
-            d->ex = ex;
-            d->codec = codec;
-            d->sawInputEOS = false;
-            d->sawOutputEOS = false;
-            d->isPlaying = false;
-            d->renderonce = true;
+            workerData->ex = ex;
+            workerData->codec = codec;
+            workerData->sawInputEOS = false;
+            workerData->sawOutputEOS = false;
+            workerData->isPlaying = false;
+            workerData->renderonce = true;
             AMediaCodec_start(codec);
 
-            d->soundSystem->notifyExtractionStarted();
-            d->isBufferInitialized = false;
-            d->extractionPosition = 0;
+            workerData->soundSystem->notifyExtractionStarted();
+            workerData->isBufferInitialized = false;
+            workerData->extractionPosition = 0;
         }
         AMediaFormat_delete(format);
     }
 
     mlooper = new MyLooper();
-    mlooper->post(kMsgCodecBuffer, d);
+    mlooper->post(kMsgCodecBuffer, workerData);
 
     setPlayingStreamingMediaPlayer(true);
 
-    d->extractionTimeStart = now_ms();
-
+    workerData->extractionTimeStart = now_ms();
     return true;
 }
 
@@ -240,5 +236,3 @@ void ExtractorNougat::setPlayingStreamingMediaPlayer(const bool isPlaying) {
         }
     }
 }
-
-#endif
