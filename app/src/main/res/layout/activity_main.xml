@@ -44,11 +44,11 @@
         android:gravity="center"
         android:visibility="invisible" />
 
-    <com.mercandalli.android.apps.audio.spectrum.SpectrumGLSurfaceView
-        android:id="@+id/spectrum"
-        android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:layout_marginTop="5dp" />
+    <!--<com.mercandalli.android.apps.audio.spectrum.SpectrumGLSurfaceView-->
+        <!--android:id="@+id/spectrum"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="80dp"-->
+        <!--android:layout_marginTop="5dp" />-->
 
     <TextView
         android:layout_width="wrap_content"

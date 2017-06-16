@@ -18,7 +18,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.mercandalli.android.apps.audio.spectrum.SpectrumGLSurfaceView;
 import com.mercandalli.android.apps.audio.utils.AudioFeaturesManager;
 import com.mercandalli.android.apps.audio.utils.FindTrackManager;
 import com.mercandalli.android.sdk.audio.SoundSystem;
@@ -47,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView mTvSoundSystemStatus;
     private TextView mTvPercentageDisplayed;
     private ToggleButton mTogglePlayPause;
-    private SpectrumGLSurfaceView mSpectrum;
+    //private SpectrumGLSurfaceView mSpectrum;
 
     /**
      * Sound system
@@ -108,18 +107,18 @@ public class MainActivity extends AppCompatActivity {
 
         mTogglePlayPause.setChecked(mSoundSystem.isPlaying());
 
-        mSpectrum = (SpectrumGLSurfaceView) findViewById(R.id.spectrum);
+        //mSpectrum = (SpectrumGLSurfaceView) findViewById(R.id.spectrum);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        mSpectrum.onResume();
+        //mSpectrum.onResume();
     }
 
     @Override
     protected void onPause() {
-        mSpectrum.onPause();
+        //mSpectrum.onPause();
         super.onPause();
     }
 
@@ -203,8 +202,8 @@ public class MainActivity extends AppCompatActivity {
             final short[] extractedData = mSoundSystem.getExtractedDataMono();
             final short[] reducedData = Arrays.copyOf(extractedData, extractedData.length / MUSIC_LENGTH_DIVISION);
 
-            mSpectrum.drawData(reducedData, metrics.widthPixels);
-            mSpectrum.requestRender();
+            //mSpectrum.drawData(reducedData, metrics.widthPixels);
+            //mSpectrum.requestRender();
         }
     };
 
