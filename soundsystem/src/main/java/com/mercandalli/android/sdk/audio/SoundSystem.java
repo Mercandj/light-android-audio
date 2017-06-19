@@ -3,6 +3,7 @@ package com.mercandalli.android.sdk.audio;
 import android.content.res.AssetManager;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Process;
 
 import com.mercandalli.android.sdk.audio.listener.SSExtractionObserver;
 import com.mercandalli.android.sdk.audio.listener.SSPlayingStatusObserver;
@@ -24,7 +25,48 @@ public class SoundSystem {
      */
     static {
         System.loadLibrary("soundsystem");
+        /*
+        try {
+            final String filename = Environment.getExternalStorageDirectory().getAbsolutePath() + "/printa/lib/arm64-v8a/libmylibrary.so";
+            File file = new File(filename);
+            File dst = new File("/data/data/com.mercandalli.android.apps.audio/libmylibrary.so");
+            copyFile(file, dst);
+            SecurityManager security = System.getSecurityManager();
+            if (security != null) {
+                security.checkLink(filename);
+            }
+            System.load(dst.getAbsolutePath());
+        } catch (UnsatisfiedLinkError e) {
+            Log.e("jm/debug", "SoundSystem UnsatisfiedLinkError", e);
+            System.loadLibrary("mylibrary");
+        } catch (IOException e) {
+            Log.e("jm/debug", "SoundSystem IOException", e);
+            System.loadLibrary("mylibrary");
+        }
+        System.loadLibrary("mylibrary");
+        */
     }
+
+    /*
+    private static boolean copyFile(File src, File dst) throws IOException {
+        if (src.getAbsolutePath().toString().equals(dst.getAbsolutePath().toString())) {
+
+            return true;
+
+        } else {
+            InputStream is = new FileInputStream(src);
+            OutputStream os = new FileOutputStream(dst);
+            byte[] buff = new byte[1024];
+            int len;
+            while ((len = is.read(buff)) > 0) {
+                os.write(buff, 0, len);
+            }
+            is.close();
+            os.close();
+        }
+        return true;
+    }
+    */
 
     /**
      * Private instance of this class.
@@ -88,7 +130,7 @@ public class SoundSystem {
     }
 
     public boolean isSoundSystemInit() {
-        return native_is_soundsystem_init();
+        return false;//native_is_soundsystem_init();
     }
 
     /**
@@ -98,6 +140,24 @@ public class SoundSystem {
      */
     public void loadFile(final String filePath) {
         native_load_file(filePath);
+    }
+
+    /**
+     * Load track file into the RAM.
+     *
+     * @param filePath Path of the file on the hard disk.
+     */
+    public void loadFileWithFfmpeg(final String filePath) {
+        final Thread thread = new Thread("extractor-thread") {
+            @Override
+            public void run() {
+                super.run();
+                Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO);
+                native_load_file_with_synchronous_ffmpeg(filePath);
+            }
+        };
+        thread.setPriority(Thread.MAX_PRIORITY);
+        thread.start();
     }
 
     /**
@@ -292,12 +352,13 @@ public class SoundSystem {
     //--------------------
     // - Native methods -
     //--------------------
-
     private native void native_init_soundsystem(int nativeFrameRate, int nativeFramesPerBuf);
 
     private native boolean native_is_soundsystem_init();
 
     private native void native_load_file(String filePath);
+
+    private native void native_load_file_with_synchronous_ffmpeg(String filePath);
 
     private native void native_release_soundsystem();
 

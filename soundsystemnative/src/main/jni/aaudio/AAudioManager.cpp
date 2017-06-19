@@ -1,3 +1,6 @@
+
+#ifdef AAUDIO
+
 #include "AAudioManager.h"
 
 aaudio_data_callback_result_t dataCallback(
@@ -168,3 +171,5 @@ void AAudioManager::deleteEngine() {
     }
     engine.requestStop_ = true;
 }
+
+#endif

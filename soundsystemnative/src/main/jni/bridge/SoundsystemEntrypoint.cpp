@@ -1,5 +1,11 @@
 #include "SoundsystemEntrypoint.h"
 
+static double now_ms(void) {
+    struct timespec res;
+    clock_gettime(CLOCK_REALTIME, &res);
+    return 1000.0 * res.tv_sec + (double) res.tv_nsec / 1e6;
+}
+
 void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1init_1soundsystem(
         JNIEnv *env,
         jclass jclass1,
@@ -7,9 +13,15 @@ void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1init_1soundsyste
         jint frames_per_buf) {
     _soundSystemCallback = new SoundSystemCallback(env, jclass1);
     _soundSystem = new SoundSystem(_soundSystemCallback, sample_rate, frames_per_buf);
-    _extractorNougat = new ExtractorNougat(_soundSystem, sample_rate);
+#ifdef MEDIACODEC_EXTRACTOR
+    _singleThreadNdkExtractor = new SingleThreadNdkExtractor(_soundSystem, sample_rate);
+#endif
+    _synchronousFfmpegExtractor = new SynchronousFfmpegExtractor(_soundSystem, sample_rate);
+
+#ifdef AAUDIO
     _aaudio_manager = new AAudioManager();
     _aaudio_manager->createEngine(_soundSystem);
+#endif
 }
 
 jboolean Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1is_1soundsystem_1init(
@@ -25,10 +37,32 @@ void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1load_1file(
     if (!isSoundSystemInit()) {
         return;
     }
+#ifdef MEDIACODEC_EXTRACTOR
     const char *urf8FileURLString = env->GetStringUTFChars(filePath, NULL);
-    _extractorNougat->extract(urf8FileURLString);
-    //_soundSystem->extractMusic(dataLocatorFromURLString(env, filePath));
+    _singleThreadNdkExtractor->extract(urf8FileURLString);
+#else
+    _soundSystem->extractMusic(dataLocatorFromURLString(env, filePath));
+#endif
     _soundSystem->initAudioPlayer();
+
+    _soundSystem->initAudioPlayer();
+}
+
+void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1load_1file_1with_1synchronous_1ffmpeg(
+        JNIEnv *env,
+        jclass jclass1,
+        jstring filePath) {
+    if (!isSoundSystemInit()) {
+        return;
+    }
+    const char *urf8FileURLString = env->GetStringUTFChars(filePath, NULL);
+    _soundSystem->initAudioPlayer();
+    _synchronousFfmpegExtractor->extract(urf8FileURLString);
+
+    const double extractionEndTime = now_ms();
+    LOGI("Extraction ffmpeg duration %f", extractionEndTime - _soundSystem->getExtractionStartTime());
+    _soundSystem->setIsLoaded(true);
+    _soundSystem->notifyExtractionEnded();
 }
 
 void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1play(
@@ -39,12 +73,15 @@ void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1play(
         return;
     }
 
+#ifdef AAUDIO
     if (play) {
         _aaudio_manager->start();
     } else {
         _aaudio_manager->stop();
     }
-    //_soundSystem->play(play);
+#else
+    _soundSystem->play(play);
+#endif
 }
 
 jboolean Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1is_1playing(
@@ -70,7 +107,9 @@ void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1stop(JNIEnv *env
         return;
     }
     _soundSystem->stop();
+#ifdef AAUDIO
     _aaudio_manager->deleteEngine();
+#endif
 }
 
 void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1extract_1and_1play(
@@ -102,15 +141,19 @@ void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1release_1soundsy
         _soundSystem = nullptr;
     }
 
-    if (_extractorNougat != nullptr) {
-        delete _extractorNougat;
-        _extractorNougat = nullptr;
+#ifdef MEDIACODEC_EXTRACTOR
+    if (_singleThreadNdkExtractor != nullptr) {
+        delete _singleThreadNdkExtractor;
+        _singleThreadNdkExtractor = nullptr;
     }
+#endif
 
+#ifdef AAUDIO
     if (_aaudio_manager != nullptr) {
         delete _aaudio_manager;
         _aaudio_manager = nullptr;
     }
+#endif
 }
 
 jshortArray Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1get_1extracted_1data(

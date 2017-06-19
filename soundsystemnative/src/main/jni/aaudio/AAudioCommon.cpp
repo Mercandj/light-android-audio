@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+#ifdef AAUDIO
+
 #include "AAudioCommon.h"
 
 static const int32_t audioFormatEnum[] = {
@@ -80,3 +83,4 @@ void PrintAudioStreamInfo(const AAudioStream *stream) {
 #undef SREAM_CALL
 }
 
+#endif

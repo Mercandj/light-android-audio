@@ -1,3 +1,6 @@
+
+#ifdef AAUDIO
+
 #ifndef MINI_SOUND_SYSTEM_AAUDIOMANAGER_H
 #define MINI_SOUND_SYSTEM_AAUDIOMANAGER_H
 
@@ -46,3 +49,5 @@ public:
 
 
 #endif //MINI_SOUND_SYSTEM_AAUDIOMANAGER_H
+
+#endif

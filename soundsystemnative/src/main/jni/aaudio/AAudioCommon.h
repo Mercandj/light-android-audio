@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#ifdef AAUDIO
+
 #ifndef AAUDIO_AUDIO_COMMON_H
 #define AAUDIO_AUDIO_COMMON_H
 
@@ -45,3 +47,5 @@ __inline__ uint64_t GetSystemTicks(void) {
 void PrintAudioStreamInfo(const AAudioStream *stream);
 
 #endif // AAUDIO_AUDIO_COMMON_H
+
+#endif

@@ -7,14 +7,30 @@ model {
 
     android.ndk {
         moduleName = "soundsystem"
-        ldLibs.addAll(["log", "android", "atomic", "OpenSLES", "mediandk", "aaudio"])
-        abiFilters.addAll(["arm64-v8a", "armeabi-v7a"])
+        ldLibs.addAll(["log", "android", "atomic", "OpenSLES", "mediandk"])
+        abiFilters.addAll(["armeabi", "armeabi-v7a", "x86"])
+
+        if (minSdkVersion >= 26) {
+            ldLibs.addAll(["aaudio"])
+            cppFlags.addAll(["-DAAUDIO", "-DMEDIACODEC_EXTRACTOR"])
+            CFlags.addAll(["-DAAUDIO", "-DMEDIACODEC_EXTRACTOR"])
+            stl "c++_static" // to access to 'thread' header, we did gnustl_static or c++_static
+        } else if (rootProject.ext.minSdkVersion >= 24) {
+            ldLibs.addAll(["mediandk"])
+            cppFlags.addAll(["-DMEDIACODEC_EXTRACTOR"])
+            CFlags.addAll(["-DMEDIACODEC_EXTRACTOR"])
+            stl "stlport_static"
+        } else if (rootProject.ext.minSdkVersion >= 21) {
+            cppFlags.addAll(["-DFLOAT_PLAYER"])
+            CFlags.addAll(["-DFLOAT_PLAYER"])
+            stl "stlport_static"
+        } else {
+            stl "stlport_static"
+        }
 
         cppFlags.addAll(["-std=c++11"])
         CFlags.addAll(["-std=c99"])
-        platformVersion = 26
-        // AAudio headers are only available with API 26 but sdk 26 is not yet available
-        stl "c++_static" // to access to 'thread' header, we did gnustl_static or c++_static
+        platformVersion = minSdkVersion
     }
 
     android.sources {
@@ -22,6 +38,22 @@ model {
             jni {
                 exportedHeaders {
                     srcDir "src/main/jni"
+                }
+                dependencies {
+                    library "prebuiltFfmpeg" linkage "shared"
+                }
+            }
+        }
+    }
+
+    repositories {
+        libs(PrebuiltLibraries) {
+            prebuiltFfmpeg {
+                headers.srcDir "../prebuilt/ffmpeg/include/armeabi-v7a"
+                binaries.withType(SharedLibraryBinary) {
+                    sharedLibraryFile = file("../prebuilt/ffmpeg/lib" +
+                            "/${targetPlatform.getName()}" +
+                            "/libffmpeg.so")
                 }
             }
         }

@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -27,6 +28,7 @@ import com.mercandalli.android.sdk.audio.listener.SSPlayingStatusObserver;
  * Simple activity launching the sound system.
  */
 public class MainActivity extends AppCompatActivity {
+
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
 
     /**
@@ -34,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private Button toggleStop;
     private Button btnExtractFile;
+    private Button btnExtractFfmpeg;
     private ToggleButton togglePlayPause;
 
     private long extractionStartTimestamp;
@@ -42,18 +45,20 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Sound system
      */
-    private SoundSystem mSoundSystem;
+    private SoundSystem soundSystem;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        setSupportActionBar((Toolbar) findViewById(R.id.activity_main_toolbar));
+
         final AudioFeaturesManager audioFeaturesManager = AudioFeaturesManager.init(this);
 
-        mSoundSystem = SoundSystem.getInstance();
-        if (!mSoundSystem.isSoundSystemInit()) {
-            mSoundSystem.initSoundSystem(
+        soundSystem = SoundSystem.getInstance();
+        if (!soundSystem.isSoundSystemInit()) {
+            soundSystem.initSoundSystem(
                     audioFeaturesManager.getSampleRate(),
                     audioFeaturesManager.getFramesPerBuffer());
         }
@@ -69,8 +74,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void initUI() {
         // extract button
-        btnExtractFile = (Button) findViewById(R.id.toggle_extract_file);
+        btnExtractFile = (Button) findViewById(R.id.btn_extract_file);
         btnExtractFile.setOnClickListener(mOnClickListener);
+
+        btnExtractFfmpeg = (Button) findViewById(R.id.btn_extract_file_ffmpeg);
+        btnExtractFfmpeg.setOnClickListener(mOnClickListener);
 
         // play pause button
         togglePlayPause = (ToggleButton) findViewById(R.id.toggle_play_pause);
@@ -80,24 +88,26 @@ public class MainActivity extends AppCompatActivity {
         toggleStop = (Button) findViewById(R.id.btn_stop);
         toggleStop.setOnClickListener(mOnClickListener);
 
-        if (mSoundSystem.isLoaded()) {
+        if (soundSystem.isLoaded()) {
             togglePlayPause.setEnabled(true);
             toggleStop.setEnabled(true);
             btnExtractFile.setEnabled(false);
+            btnExtractFfmpeg.setEnabled(false);
         } else {
             btnExtractFile.setEnabled(true);
+            btnExtractFfmpeg.setEnabled(true);
             togglePlayPause.setEnabled(false);
             toggleStop.setEnabled(false);
         }
 
-        togglePlayPause.setChecked(mSoundSystem.isPlaying());
+        togglePlayPause.setChecked(soundSystem.isPlaying());
     }
 
     @Override
     protected void onDestroy() {
         if (!isChangingConfigurations()) {
             detachListeners();
-            mSoundSystem.release();
+            soundSystem.release();
         }
         super.onDestroy();
     }
@@ -105,26 +115,24 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            mSoundSystem.loadFile(FindTrackManager.getTrackPath(MainActivity.this).getPath());
+            soundSystem.loadFile(FindTrackManager.getTrackPath(MainActivity.this).getPath());
         } else {
             Toast.makeText(this, "No permission, no extraction !", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void attachToListeners() {
-        mSoundSystem.addPlayingStatusObserver(mSSPlayingStatusObserver);
-        mSoundSystem.addExtractionObserver(mSSExtractionObserver);
+        soundSystem.addPlayingStatusObserver(mSSPlayingStatusObserver);
+        soundSystem.addExtractionObserver(mSSExtractionObserver);
     }
 
     private void detachListeners() {
-        mSoundSystem.removePlayingStatusObserver(mSSPlayingStatusObserver);
-        mSoundSystem.removeExtractionObserver(mSSExtractionObserver);
+        soundSystem.removePlayingStatusObserver(mSSPlayingStatusObserver);
+        soundSystem.removeExtractionObserver(mSSExtractionObserver);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void displayAvailableAudioCodecs() {
-        final TextView tvAvailableCodecs = (TextView) findViewById(R.id.tv_available_codecs);
-
         final MediaCodecList mediaCodecList = new MediaCodecList(MediaCodecList.REGULAR_CODECS);
         final MediaCodecInfo[] codecInfos = mediaCodecList.getCodecInfos();
         final StringBuilder stringBuilder = new StringBuilder();
@@ -146,8 +154,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-
-        tvAvailableCodecs.setText(stringBuilder.toString());
+        log("Available codecs : \n" + stringBuilder.toString());
     }
 
     private void log(String message) {
@@ -160,6 +167,7 @@ public class MainActivity extends AppCompatActivity {
         public void onExtractionStarted() {
             extractionStartTimestamp = System.currentTimeMillis();
             btnExtractFile.setEnabled(false);
+            btnExtractFfmpeg.setEnabled(false);
             log("Extraction started");
         }
 
@@ -196,11 +204,16 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
-                case R.id.toggle_extract_file:
+                case R.id.btn_extract_file:
                     loadTrackOrAskPermission();
                     break;
+
+                case R.id.btn_extract_file_ffmpeg:
+                    loadTrackWithFfmpefOrAskPermission();
+                    break;
+
                 case R.id.btn_stop:
-                    mSoundSystem.stopMusic();
+                    soundSystem.stopMusic();
                     break;
             }
         }
@@ -209,7 +222,16 @@ public class MainActivity extends AppCompatActivity {
     private void loadTrackOrAskPermission() {
         final int permissionCheck = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE);
         if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-            mSoundSystem.loadFile(FindTrackManager.getTrackPath(MainActivity.this).getPath());
+            soundSystem.loadFile(FindTrackManager.getTrackPath(MainActivity.this).getPath());
+        } else {
+            askForReadExternalStoragePermission();
+        }
+    }
+
+    private void loadTrackWithFfmpefOrAskPermission() {
+        final int permissionCheck = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+            soundSystem.loadFileWithFfmpeg(FindTrackManager.getTrackPath(MainActivity.this).getPath());
         } else {
             askForReadExternalStoragePermission();
         }
@@ -228,7 +250,7 @@ public class MainActivity extends AppCompatActivity {
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             switch (buttonView.getId()) {
                 case R.id.toggle_play_pause:
-                    mSoundSystem.playMusic(isChecked);
+                    soundSystem.playMusic(isChecked);
                     break;
             }
         }

@@ -7,19 +7,30 @@
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
 #include <assert.h>
+#include <audio/extractor/SynchronousFfmpegExtractor.h>
 
-#include "audio/extractornougat/ExtractorNougat.h"
-#include "aaudio/AAudioManager.h"
+#include "audio/extractor/SingleThreadNdkExtractor.h"
+
+
 #include "audio/SoundSystem.h"
 #include "listener/SoundSystemCallback.h"
+#ifdef AAUDIO
+#include "aaudio/AAudioManager.h"
+#endif
 
 static SoundSystem *_soundSystem;
 
 static SoundSystemCallback *_soundSystemCallback;
 
-static ExtractorNougat *_extractorNougat;
+#ifdef MEDIACODEC_EXTRACTOR
+static SingleThreadNdkExtractor *_singleThreadNdkExtractor;
+#endif
 
+static SynchronousFfmpegExtractor *_synchronousFfmpegExtractor;
+
+#ifdef AAUDIO
 static AAudioManager *_aaudio_manager;
+#endif
 
 extern "C" {
 
@@ -30,6 +41,11 @@ void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1init_1soundsyste
         jint frames_per_buf);
 
 void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1load_1file(
+        JNIEnv *env,
+        jclass jclass1,
+        jstring filePath);
+
+void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1load_1file_1with_1synchronous_1ffmpeg(
         JNIEnv *env,
         jclass jclass1,
         jstring filePath);
