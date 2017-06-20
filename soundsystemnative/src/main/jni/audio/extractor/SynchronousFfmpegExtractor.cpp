@@ -38,24 +38,22 @@ SynchronousFfmpegExtractor::~SynchronousFfmpegExtractor() {
 }
 
 bool SynchronousFfmpegExtractor::extract(const char *filename) {
-    AMediaExtractor *ex = AMediaExtractor_new();
-    media_status_t err = AMediaExtractor_setDataSource(ex, filename);
+    AMediaExtractor *aMediaExtractor = AMediaExtractor_new();
+    media_status_t err = AMediaExtractor_setDataSource(aMediaExtractor, filename);
 
     if (err != AMEDIA_OK) {
         LOGV("setDataSource error: %d", err);
         return false;
     }
 
-    int numtracks = AMediaExtractor_getTrackCount(ex);
-
-    LOGV("input has %d tracks", numtracks);
-    for (int i = 0; i < numtracks; i++) {
-        AMediaFormat *format = AMediaExtractor_getTrackFormat(ex, i);
+    int numtracks = AMediaExtractor_getTrackCount(aMediaExtractor);
+    for (int trackIndex = 0; trackIndex < numtracks; trackIndex++) {
+        AMediaFormat *format = AMediaExtractor_getTrackFormat(aMediaExtractor, trackIndex);
         const char *s = AMediaFormat_toString(format);
-        LOGV("track %d format: %s", i, s);
+        LOGV("track %d format: %s", trackIndex, s);
         const char *mime;
         if (!AMediaFormat_getString(format, AMEDIAFORMAT_KEY_MIME, &mime)) {
-            LOGV("no mime type");
+            // no mime type
             return false;
         } else if (strncmp(mime, "audio/", 6) == 0) {
             extractMetadata(format);
@@ -81,20 +79,6 @@ void SynchronousFfmpegExtractor::extractMetadata(AMediaFormat *format) {
     _extractedData = (short *) calloc(_file_total_frames * _file_number_channels, sizeof(short));
     _soundSystem->setExtractedData(_extractedData);
     _soundSystem->setTotalNumberFrames(_file_total_frames);
-}
-
-void printAudioFrameInfo(const AVCodecContext *codecContext, const AVFrame *frame) {
-    /*
-     This url: http://ffmpeg.org/doxygen/trunk/samplefmt_8h.html#af9a51ca15301871723577c730b5865c5
-     contains information on the type you will need to utilise to access the audio data.
-    */
-    // format the tabs etc. in this string to suit your font, they line up for mine but may not for yours:)
-    LOGD("jm/debug Audio frame info:\n\tSample count: %d\n\tChannel count: %d\n\tFormat: %s\n\tBytes per sample: %d\n\tPlanar storage format: %d\n",
-         frame->nb_samples,
-         codecContext->channels,
-         av_get_sample_fmt_name(codecContext->sample_fmt),
-         av_get_bytes_per_sample(codecContext->sample_fmt),
-         av_sample_fmt_is_planar(codecContext->sample_fmt));
 }
 
 int SynchronousFfmpegExtractor::decode_audio_file(const char *path, short **data, int *size) {
@@ -183,10 +167,8 @@ int SynchronousFfmpegExtractor::decode_audio_file(const char *path, short **data
                 int gotFrame = 0;
                 int result = avcodec_decode_audio4(codec, frame, &gotFrame, &decodingPacket);
 
-                if (result >= 0 && gotFrame /*&& decodingPacket.size > 0*/) {
+                if (result >= 0 && gotFrame) {
                     decodingPacket.size -= result;
-                    // decodingPacket.data += result;
-                    // LOGD("jm/debug size==%d", *size);
 
                     // ***************************************************** //
                     // ****************** RESAMPLE FRAMES ****************** //
@@ -214,9 +196,6 @@ int SynchronousFfmpegExtractor::decode_audio_file(const char *path, short **data
                     *size += frame_count * 2;
                     // ****************** RESAMPLE FRAMES ****************** //
                     // ***************************************************** //
-
-                    // et voila! a decoded audio frame!
-                    // printAudioFrameInfo(codec, frame);
                 } else {
                     decodingPacket.size = 0;
                     decodingPacket.data = nullptr;
@@ -238,7 +217,6 @@ int SynchronousFfmpegExtractor::decode_audio_file(const char *path, short **data
         int gotFrame = 0;
         while (avcodec_decode_audio4(codec, frame, &gotFrame, &packet) >= 0 && gotFrame) {
             // Again: a fully decoded audio frame!
-            printAudioFrameInfo(codec, frame);
         }
     }
     */
@@ -248,12 +226,6 @@ int SynchronousFfmpegExtractor::decode_audio_file(const char *path, short **data
     swr_free(&swr);
     avcodec_close(codec);
     avformat_free_context(format);
-
-    /*
-    FILE *file = fopen("/sdcard/Music/raw-data.txt", "w+");
-    fwrite(*data, sizeof(uint8_t), *size, file);
-    fclose(file);
-    */
 
     // success
     return 0;

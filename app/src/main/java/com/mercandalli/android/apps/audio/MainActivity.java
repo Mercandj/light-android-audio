@@ -23,8 +23,6 @@ import com.mercandalli.android.apps.audio.utils.AudioFeaturesManager;
 import com.mercandalli.android.apps.audio.utils.FindTrackManager;
 import com.mercandalli.android.apps.audio.utils.Track;
 import com.mercandalli.android.sdk.audio.SoundSystem;
-import com.mercandalli.android.sdk.audio.listener.SSExtractionObserver;
-import com.mercandalli.android.sdk.audio.listener.SSPlayingStatusObserver;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -73,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
 
         final AudioFeaturesManager audioFeaturesManager = AudioFeaturesManager.init(this);
 
-        soundSystem = SoundSystem.getInstance();
+        soundSystem = SoundSystem.Instance.getInstance();
         if (!soundSystem.isSoundSystemInit()) {
             soundSystem.initSoundSystem(
                     audioFeaturesManager.getSampleRate(),
@@ -149,13 +147,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void attachToListeners() {
-        soundSystem.addPlayingStatusObserver(mSSPlayingStatusObserver);
-        soundSystem.addExtractionObserver(mSSExtractionObserver);
+        soundSystem.addPlayingStatusListener(playingStatusObserver);
+        soundSystem.addExtractionListener(extractionObserver);
     }
 
     private void detachListeners() {
-        soundSystem.removePlayingStatusObserver(mSSPlayingStatusObserver);
-        soundSystem.removeExtractionObserver(mSSExtractionObserver);
+        soundSystem.removePlayingStatusListener(playingStatusObserver);
+        soundSystem.removeExtractionListener(extractionObserver);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -189,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
         textView.setText(message + "\n" + textView.getText().toString());
     }
 
-    private SSExtractionObserver mSSExtractionObserver = new SSExtractionObserver() {
+    private SoundSystem.ExtractionListener extractionObserver = new SoundSystem.ExtractionListener() {
         @Override
         public void onExtractionStarted() {
             extractionStartTimestamp = System.currentTimeMillis();
@@ -208,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    private SSPlayingStatusObserver mSSPlayingStatusObserver = new SSPlayingStatusObserver() {
+    private SoundSystem.PlayingStatusListener playingStatusObserver = new SoundSystem.PlayingStatusListener() {
         @Override
         public void onPlayingStatusDidChange(final boolean playing) {
             log(playing ? "Playing" : "Pause");

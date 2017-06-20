@@ -70,9 +70,10 @@ void SoundSystem::getData() {
     _positionPlay += _bufferSize;
 }
 
-SoundSystem::SoundSystem(SoundSystemCallback *callback,
-                         int sampleRate,
-                         int bufSize) :
+SoundSystem::SoundSystem(
+        SoundSystemCallback *callback,
+        int sampleRate,
+        int bufSize) :
         _soundSystemCallback(callback),
         _needExtractInitialisation(true),
         _isLoaded(false),
@@ -474,7 +475,3 @@ AUDIO_HARDWARE_SAMPLE_TYPE *SoundSystem::getExtractedDataMono() {
     }
     return dataMono;
 }
-
-
-
-

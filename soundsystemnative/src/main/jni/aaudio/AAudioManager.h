@@ -1,8 +1,8 @@
 
 #ifdef AAUDIO
 
-#ifndef MINI_SOUND_SYSTEM_AAUDIOMANAGER_H
-#define MINI_SOUND_SYSTEM_AAUDIOMANAGER_H
+#ifndef SOUND_SYSTEM_AAUDIO_MANAGER_H
+#define SOUND_SYSTEM_AAUDIO_MANAGER_H
 
 #include <thread>
 #include <cassert>
@@ -48,6 +48,6 @@ public:
 };
 
 
-#endif //MINI_SOUND_SYSTEM_AAUDIOMANAGER_H
+#endif //SOUND_SYSTEM_AAUDIO_MANAGER_H
 
 #endif

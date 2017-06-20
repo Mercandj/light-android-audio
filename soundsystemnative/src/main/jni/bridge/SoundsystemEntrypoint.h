@@ -34,63 +34,63 @@ static AAudioManager *_aaudio_manager;
 
 extern "C" {
 
-void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1init_1soundsystem(
+void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1init_1soundsystem(
         JNIEnv *env,
         jclass jclass1,
         jint sample_rate,
         jint frames_per_buf);
 
-void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1load_1file(
+void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1load_1file(
         JNIEnv *env,
         jclass jclass1,
         jstring filePath);
 
-void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1load_1file_1with_1synchronous_1ffmpeg(
+void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1load_1file_1with_1synchronous_1ffmpeg(
         JNIEnv *env,
         jclass jclass1,
         jstring filePath);
 
-void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1play(
+void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1play(
         JNIEnv *env,
         jclass jclass1,
         jboolean play);
 
-jboolean Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1is_1playing(
+jboolean Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1is_1playing(
         JNIEnv *env,
         jclass jclass1);
 
-jboolean Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1is_1loaded(
+jboolean Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1is_1loaded(
         JNIEnv *env,
         jclass jclass1);
 
-jboolean Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1is_1soundsystem_1init(
+jboolean Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1is_1soundsystem_1init(
         JNIEnv *env,
         jclass jclass1);
 
-void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1stop(
+void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1stop(
         JNIEnv *env,
         jclass jclass1);
 
-void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1extract_1and_1play(
+void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1extract_1and_1play(
         JNIEnv *env,
         jobject obj,
         jstring filePath);
 
-void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1release_1soundsystem(
+void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1release_1soundsystem(
         JNIEnv *env,
         jclass jclass1);
 
-void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1extract_1from_1assets_1and_1play(
+void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1extract_1from_1assets_1and_1play(
         JNIEnv *env,
         jobject obj,
         jobject assetManager,
         jstring filename);
 
-jshortArray Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1get_1extracted_1data(
+jshortArray Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1get_1extracted_1data(
         JNIEnv *env,
         jclass jclass1);
 
-jshortArray Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1get_1extracted_1data_1mono(
+jshortArray Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1get_1extracted_1data_1mono(
         JNIEnv *env,
         jclass jclass1);
 }

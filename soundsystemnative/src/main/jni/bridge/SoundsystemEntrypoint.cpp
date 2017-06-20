@@ -6,7 +6,7 @@ static double now_ms(void) {
     return 1000.0 * res.tv_sec + (double) res.tv_nsec / 1e6;
 }
 
-void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1init_1soundsystem(
+void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1init_1soundsystem(
         JNIEnv *env,
         jclass jclass1,
         jint sample_rate,
@@ -24,13 +24,13 @@ void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1init_1soundsyste
 #endif
 }
 
-jboolean Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1is_1soundsystem_1init(
+jboolean Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1is_1soundsystem_1init(
         JNIEnv *env,
         jclass jclass1) {
     return (jboolean) isSoundSystemInit();
 }
 
-void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1load_1file(
+void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1load_1file(
         JNIEnv *env,
         jclass jclass1,
         jstring filePath) {
@@ -49,29 +49,21 @@ void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1load_1file(
 }
 
 void
-Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1load_1file_1with_1synchronous_1ffmpeg(
+Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1load_1file_1with_1synchronous_1ffmpeg(
         JNIEnv *env,
         jclass jclass1,
         jstring filePath) {
-    LOGD("jm/debug A");
     if (!isSoundSystemInit()) {
         return;
     }
-    LOGD("jm/debug B");
     const char *urf8FileURLString = env->GetStringUTFChars(filePath, NULL);
-    LOGD("jm/debug C");
     _soundSystem->initAudioPlayer();
-    LOGD("jm/debug D");
     _synchronousFfmpegExtractor->extract(urf8FileURLString);
-
-    const double extractionEndTime = now_ms();
-    LOGI("Extraction ffmpeg duration %f",
-         extractionEndTime - _soundSystem->getExtractionStartTime());
     _soundSystem->setIsLoaded(true);
     _soundSystem->notifyExtractionEnded();
 }
 
-void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1play(
+void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1play(
         JNIEnv *env,
         jclass jclass1,
         jboolean play) {
@@ -90,7 +82,7 @@ void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1play(
 #endif
 }
 
-jboolean Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1is_1playing(
+jboolean Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1is_1playing(
         JNIEnv *env,
         jclass jclass1) {
     if (!isSoundSystemInit()) {
@@ -99,7 +91,7 @@ jboolean Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1is_1playing(
     return (jboolean) _soundSystem->isPlaying();
 }
 
-jboolean Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1is_1loaded(
+jboolean Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1is_1loaded(
         JNIEnv *env,
         jclass jclass1) {
     if (!isSoundSystemInit()) {
@@ -108,7 +100,8 @@ jboolean Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1is_1loaded(
     return (jboolean) _soundSystem->isLoaded();
 }
 
-void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1stop(JNIEnv *env, jclass jclass1) {
+void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1stop(JNIEnv *env,
+                                                                               jclass jclass1) {
     if (!isSoundSystemInit()) {
         return;
     }
@@ -118,7 +111,7 @@ void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1stop(JNIEnv *env
 #endif
 }
 
-void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1extract_1and_1play(
+void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1extract_1and_1play(
         JNIEnv *env,
         jobject obj,
         jstring filePath) {
@@ -128,7 +121,8 @@ void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1extract_1and_1pl
     _soundSystem->extractAndPlayDirectly(dataLocatorFromURLString(env, filePath));
 }
 
-void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1extract_1from_1assets_1and_1play(
+void
+Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1extract_1from_1assets_1and_1play(
         JNIEnv *env,
         jobject obj,
         jobject assetManager,
@@ -140,7 +134,7 @@ void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1extract_1from_1a
     _soundSystem->extractAndPlayDirectly(&locator);
 }
 
-void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1release_1soundsystem(
+void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1release_1soundsystem(
         JNIEnv *env, jclass jclass1) {
     if (_soundSystem != nullptr) {
         delete _soundSystem;
@@ -162,7 +156,8 @@ void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1release_1soundsy
 #endif
 }
 
-jshortArray Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1get_1extracted_1data(
+jshortArray
+Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1get_1extracted_1data(
         JNIEnv *env,
         jclass jclass1) {
     if (!isSoundSystemInit()) {
@@ -180,7 +175,8 @@ jshortArray Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1get_1extr
     return jExtractedData;
 }
 
-jshortArray Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1get_1extracted_1data_1mono(
+jshortArray
+Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1get_1extracted_1data_1mono(
         JNIEnv *env,
         jclass jclass1) {
     if (!isSoundSystemInit()) {
