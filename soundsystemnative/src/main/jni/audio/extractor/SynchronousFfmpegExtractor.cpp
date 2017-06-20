@@ -38,7 +38,6 @@ SynchronousFfmpegExtractor::~SynchronousFfmpegExtractor() {
 }
 
 bool SynchronousFfmpegExtractor::extract(const char *filename) {
-
     AMediaExtractor *ex = AMediaExtractor_new();
     media_status_t err = AMediaExtractor_setDataSource(ex, filename);
 
@@ -61,7 +60,8 @@ bool SynchronousFfmpegExtractor::extract(const char *filename) {
         } else if (strncmp(mime, "audio/", 6) == 0) {
             extractMetadata(format);
             _soundSystem->notifyExtractionStarted();
-            decode_audio_file(filename, _extractedData, &_size);
+            decode_audio_file(filename, &_extractedData, &_size);
+            _soundSystem->setExtractedData(_extractedData);
         }
         AMediaFormat_delete(format);
     }
@@ -75,12 +75,11 @@ void SynchronousFfmpegExtractor::extractMetadata(AMediaFormat *format) {
     AMediaFormat_getInt32(format, AMEDIAFORMAT_KEY_SAMPLE_RATE, &_file_sample_rate);
 
     // duration is in micro seconds
-    _file_total_frames = (unsigned int) (((double) _file_duration * (double) _device_frame_rate /
+    _file_total_frames = (unsigned int) (((double) _file_duration * (double) _frameRate /
                                           1000000.0));
 
-    _extractedData = (uint8_t *) calloc(_file_total_frames * _file_number_channels * 2,
-                                        sizeof(uint8_t));
-    _soundSystem->setExtractedData(reinterpret_cast<short *>(_extractedData));
+    _extractedData = (short *) calloc(_file_total_frames * _file_number_channels, sizeof(short));
+    _soundSystem->setExtractedData(_extractedData);
     _soundSystem->setTotalNumberFrames(_file_total_frames);
 }
 
@@ -98,9 +97,7 @@ void printAudioFrameInfo(const AVCodecContext *codecContext, const AVFrame *fram
          av_sample_fmt_is_planar(codecContext->sample_fmt));
 }
 
-int SynchronousFfmpegExtractor::decode_audio_file(const char *path, uint8_t *data, int *size) {
-    LOGD("jm/debug decode_audio_file %s", path);
-
+int SynchronousFfmpegExtractor::decode_audio_file(const char *path, short **data, int *size) {
     // initialize all muxers, demuxers and protocols for libavformat
     // (does nothing if called twice during the course of one program execution)
     av_register_all();
@@ -149,8 +146,9 @@ int SynchronousFfmpegExtractor::decode_audio_file(const char *path, uint8_t *dat
     av_opt_set_int(swr, "in_sample_rate", codec->sample_rate, 0);
     av_opt_set_int(swr, "out_sample_rate", _frameRate, 0);
     av_opt_set_sample_fmt(swr, "in_sample_fmt", codec->sample_fmt, 0);
-    av_opt_set_sample_fmt(swr, "out_sample_fmt", AV_SAMPLE_FMT_U8, 0);
-    swr_init(swr);
+    av_opt_set_sample_fmt(swr, "out_sample_fmt", AV_SAMPLE_FMT_S16, 0);
+    av_opt_set_int(swr, "force_resampling", 1, 0);
+    assert(swr_init(swr) == 0);
     if (!swr_is_initialized(swr)) {
         LOGD("Resampler has not been properly initialized\n");
         return -1;
@@ -166,12 +164,11 @@ int SynchronousFfmpegExtractor::decode_audio_file(const char *path, uint8_t *dat
     }
 
     // iterate through frames
+    *data = NULL;
     *size = 0;
 
     // https://stackoverflow.com/questions/20545767/decode-audio-from-memory-c
     // Read the packets in a loop
-    bool test = false;
-
     while (av_read_frame(format, &packet) == 0) {
 
         if (packet.stream_index == stream->index) {
@@ -186,65 +183,40 @@ int SynchronousFfmpegExtractor::decode_audio_file(const char *path, uint8_t *dat
                 int gotFrame = 0;
                 int result = avcodec_decode_audio4(codec, frame, &gotFrame, &decodingPacket);
 
-                LOGD("jm/debug result = %d", result);
-
-                if (result >= 0 && gotFrame && decodingPacket.size > 0) {
+                if (result >= 0 && gotFrame /*&& decodingPacket.size > 0*/) {
                     decodingPacket.size -= result;
-                    decodingPacket.data += result;
-
-                    /*LOGD("jm/debug RESAMPLE FRAMES decodingPacket.size== %d decodingPacket.data==%"PRIu8"",
-                         decodingPacket.size,
-                         decodingPacket.data);*/
-
-                    LOGD("jm/debug coucou -1");
-                    memcpy(data + *size, frame->data, result * sizeof(uint8_t));
-                    LOGD("jm/debug coucou 0");
-                    *size += result * sizeof(uint8_t);
-
-                    /*
-                    FILE *file = fopen("/sdcard/Music/hello.txt", "w+");
-                    //fwrite(data, *size, *size * sizeof(uint8_t), file);
-                    char str[] = "This is tutorialspoint.com";
-                    LOGI("str %d", sizeof(str));
-                    //fwrite(&str , sizeof(char), sizeof(str) , file );
-                    fputs("HELLO WORLD!\n", file);
-                    //fflush(file);
-                    fclose(file);
-                     */
-
-                    /*
-                    LOGD("jm/debug coucou 1");
-                    if (*size > 40000 && !test) {
-                        LOGD("jm/debug coucou 2");
-                        for (int i = 0; i < *size; i++) {
-                            LOGI("data %d", data[i]);
-                        }
-                        test = true;
-                    }*/
+                    // decodingPacket.data += result;
+                    // LOGD("jm/debug size==%d", *size);
 
                     // ***************************************************** //
                     // ****************** RESAMPLE FRAMES ****************** //
-                    /*
-                    uint8_t *buffer;
-                    av_samples_alloc(&buffer, NULL, 1, frame->nb_samples, AV_SAMPLE_FMT_DBL, 0);
+                    short *buffer;
+                    av_samples_alloc(
+                            (uint8_t **) &buffer,
+                            NULL,
+                            2,
+                            frame->nb_samples,
+                            AV_SAMPLE_FMT_S16,
+                            0);
                     int frame_count = swr_convert(
                             swr,
-                            &buffer,
+                            (uint8_t **) &buffer,
                             frame->nb_samples,
                             (const uint8_t **) frame->data,
                             frame->nb_samples);
                     // append resampled frames to data
-                    *data = (uint8_t *) realloc(
+                    *data = (short *) realloc(
                             *data,
-                            (*size + frame->nb_samples) * sizeof(uint8_t));
-                    memcpy(*data + *size, buffer, frame_count * sizeof(double));
-                    *size += frame_count;
-                    */
+                            (*size + frame->nb_samples) * sizeof(short) * 2);
+                    memcpy(*data + *size,
+                           buffer,
+                           frame_count * sizeof(short) * 2);
+                    *size += frame_count * 2;
                     // ****************** RESAMPLE FRAMES ****************** //
                     // ***************************************************** //
 
                     // et voila! a decoded audio frame!
-                    printAudioFrameInfo(codec, frame);
+                    // printAudioFrameInfo(codec, frame);
                 } else {
                     decodingPacket.size = 0;
                     decodingPacket.data = nullptr;
@@ -254,7 +226,7 @@ int SynchronousFfmpegExtractor::decode_audio_file(const char *path, uint8_t *dat
 
         // You MUST call av_free_packet() after each call to av_read_frame()
         // or you will leak so much memory on a large file you will need a memory-plumber!
-        //av_packet_unref(&packet);
+        // av_packet_unref(&packet);
     }
     /*
     // Some codecs will cause frames to be buffered in the decoding process.
@@ -271,11 +243,17 @@ int SynchronousFfmpegExtractor::decode_audio_file(const char *path, uint8_t *dat
     }
     */
 
-    // clean up
+    // Clean up! (unless you have a quantum memory machine with infinite RAM....)
     av_frame_free(&frame);
     swr_free(&swr);
     avcodec_close(codec);
     avformat_free_context(format);
+
+    /*
+    FILE *file = fopen("/sdcard/Music/raw-data.txt", "w+");
+    fwrite(*data, sizeof(uint8_t), *size, file);
+    fclose(file);
+    */
 
     // success
     return 0;

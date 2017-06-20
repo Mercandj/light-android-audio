@@ -48,19 +48,25 @@ void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1load_1file(
     _soundSystem->initAudioPlayer();
 }
 
-void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1load_1file_1with_1synchronous_1ffmpeg(
+void
+Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1load_1file_1with_1synchronous_1ffmpeg(
         JNIEnv *env,
         jclass jclass1,
         jstring filePath) {
+    LOGD("jm/debug A");
     if (!isSoundSystemInit()) {
         return;
     }
+    LOGD("jm/debug B");
     const char *urf8FileURLString = env->GetStringUTFChars(filePath, NULL);
+    LOGD("jm/debug C");
     _soundSystem->initAudioPlayer();
+    LOGD("jm/debug D");
     _synchronousFfmpegExtractor->extract(urf8FileURLString);
 
     const double extractionEndTime = now_ms();
-    LOGI("Extraction ffmpeg duration %f", extractionEndTime - _soundSystem->getExtractionStartTime());
+    LOGI("Extraction ffmpeg duration %f",
+         extractionEndTime - _soundSystem->getExtractionStartTime());
     _soundSystem->setIsLoaded(true);
     _soundSystem->notifyExtractionEnded();
 }
@@ -158,7 +164,7 @@ void Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1release_1soundsy
 
 jshortArray Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1get_1extracted_1data(
         JNIEnv *env,
-                                                                                jclass jclass1) {
+        jclass jclass1) {
     if (!isSoundSystemInit()) {
         return nullptr;
     }
@@ -176,7 +182,7 @@ jshortArray Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1get_1extr
 
 jshortArray Java_com_mercandalli_android_sdk_audio_SoundSystem_native_1get_1extracted_1data_1mono(
         JNIEnv *env,
-                                                                                      jclass jclass1) {
+        jclass jclass1) {
     if (!isSoundSystemInit()) {
         return nullptr;
     }

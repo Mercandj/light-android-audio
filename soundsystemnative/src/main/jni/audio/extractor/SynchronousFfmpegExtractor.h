@@ -29,17 +29,16 @@ public:
 
     void extractMetadata(AMediaFormat *format);
 
-    int decode_audio_file(const char *path, uint8_t *data, int *size);
+    int decode_audio_file(const char *path, short **data, int *size);
 
 private:
 
     const unsigned short _frameRate;
-    uint8_t *_extractedData;
+    short *_extractedData;
     int32_t _file_sample_rate;
     int32_t _file_number_channels;
     int64_t _file_duration;
     unsigned int _file_total_frames;
-    unsigned short _device_frame_rate;
 
     SoundSystem *_soundSystem;
     int _size;

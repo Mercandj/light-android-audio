@@ -11,7 +11,6 @@ import com.mercandalli.android.sdk.audio.listener.SSPlayingStatusObserver;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * Class used to communicate with the sound system.
  */

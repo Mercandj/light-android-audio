@@ -7,6 +7,7 @@ import android.media.MediaCodecInfo;
 import android.media.MediaCodecList;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.IntDef;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -20,14 +21,27 @@ import android.widget.ToggleButton;
 
 import com.mercandalli.android.apps.audio.utils.AudioFeaturesManager;
 import com.mercandalli.android.apps.audio.utils.FindTrackManager;
+import com.mercandalli.android.apps.audio.utils.Track;
 import com.mercandalli.android.sdk.audio.SoundSystem;
 import com.mercandalli.android.sdk.audio.listener.SSExtractionObserver;
 import com.mercandalli.android.sdk.audio.listener.SSPlayingStatusObserver;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * Simple activity launching the sound system.
  */
 public class MainActivity extends AppCompatActivity {
+
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({ACTION_NO_ACTION, ACTION_LOAD_FILE, ACTION_LOAD_FILE_FFMPEG})
+    @interface Action {
+    }
+
+    private static final int ACTION_NO_ACTION = 0;
+    private static final int ACTION_LOAD_FILE = 1;
+    private static final int ACTION_LOAD_FILE_FFMPEG = 2;
 
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
 
@@ -46,6 +60,9 @@ public class MainActivity extends AppCompatActivity {
      * Sound system
      */
     private SoundSystem soundSystem;
+
+    @Action
+    private int action = ACTION_NO_ACTION;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,7 +132,17 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            soundSystem.loadFile(FindTrackManager.getTrackPath(MainActivity.this).getPath());
+            switch (action) {
+                case ACTION_LOAD_FILE_FFMPEG:
+                    soundSystem.loadFileWithFfmpeg(FindTrackManager.getTrackPath(MainActivity.this).getPath());
+                    break;
+                case ACTION_LOAD_FILE:
+                    soundSystem.loadFile(FindTrackManager.getTrackPath(MainActivity.this).getPath());
+                    break;
+                case ACTION_NO_ACTION:
+                    break;
+            }
+            action = ACTION_NO_ACTION;
         } else {
             Toast.makeText(this, "No permission, no extraction !", Toast.LENGTH_SHORT).show();
         }
@@ -224,15 +251,19 @@ public class MainActivity extends AppCompatActivity {
         if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
             soundSystem.loadFile(FindTrackManager.getTrackPath(MainActivity.this).getPath());
         } else {
+            action = ACTION_LOAD_FILE;
             askForReadExternalStoragePermission();
         }
     }
 
     private void loadTrackWithFfmpefOrAskPermission() {
-        final int permissionCheck = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        int permissionCheck = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE);
         if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
-            soundSystem.loadFileWithFfmpeg(FindTrackManager.getTrackPath(MainActivity.this).getPath());
+            Track trackPath = FindTrackManager.getTrackPath(MainActivity.this);
+            String path = trackPath.getPath();
+            soundSystem.loadFileWithFfmpeg(path);
         } else {
+            action = ACTION_LOAD_FILE_FFMPEG;
             askForReadExternalStoragePermission();
         }
     }
