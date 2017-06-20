@@ -1,3 +1,6 @@
+
+#ifdef AAUDIO
+
 /*
  * Copyright 2015 The Android Open Source Project
  *
@@ -78,3 +81,5 @@ private:
 };
 
 #endif //AAUDIO_STREAM_BIULDER_H
+
+#endif

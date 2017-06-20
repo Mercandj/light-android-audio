@@ -1,25 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal"
     tools:context=".MainActivity">
 
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_weight="1"
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/activity_main_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?android:attr/actionBarSize"
+        android:background="@color/colorPrimary" />
+
+    <TextView
+        android:id="@+id/tv_logs"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="?android:attr/actionBarSize"
+        android:padding="24dp"
+        android:textColor="#bbbbbb"
+        tools:text="Test" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="?android:attr/actionBarSize"
+        android:gravity="center"
         android:orientation="vertical">
 
         <Button
-            android:id="@+id/toggle_extract_file"
+            android:id="@+id/btn_extract_file"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="32dp"
-            android:text="Extract file" />
+            android:text="Extract" />
+
+        <Button
+            android:id="@+id/btn_extract_file_ffmpeg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Extract FFMPEG" />
 
         <ToggleButton
             android:id="@+id/toggle_play_pause"
@@ -36,29 +57,14 @@
             android:layout_gravity="center_horizontal"
             android:text="Stop" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="Available codecs : " />
-
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:id="@+id/tv_available_codecs"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-        </ScrollView>
-
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/tv_logs"
-        android:layout_width="0dp"
-        android:layout_weight="1"
-        android:layout_height="match_parent" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="6dp"
+        android:layout_gravity="top"
+        android:layout_marginTop="?android:attr/actionBarSize"
+        android:background="@drawable/shadow_bottom"
+        android:clickable="false" />
 
-</LinearLayout>
+</FrameLayout>

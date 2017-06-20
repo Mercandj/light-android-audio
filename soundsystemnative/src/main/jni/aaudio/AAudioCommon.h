@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-#ifndef AAUDIO_AUDIO_COMMON_H
-#define AAUDIO_AUDIO_COMMON_H
+#ifdef AAUDIO
+
+#ifndef SOUND_SYSTEM_AAUDIO_COMMON_H
+#define SOUND_SYSTEM_AAUDIO_COMMON_H
 
 #include <aaudio/AAudio.h>
 #include <utils/android_debug.h>
@@ -44,4 +46,6 @@ __inline__ uint64_t GetSystemTicks(void) {
 
 void PrintAudioStreamInfo(const AAudioStream *stream);
 
-#endif // AAUDIO_AUDIO_COMMON_H
+#endif // SOUND_SYSTEM_AAUDIO_COMMON_H
+
+#endif // AAUDIO
