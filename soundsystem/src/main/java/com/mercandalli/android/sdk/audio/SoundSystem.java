@@ -21,7 +21,8 @@ public interface SoundSystem {
          */
         public static SoundSystem getInstance() {
             if (sInstance == null) {
-                SoundSystemEntryPoint soundSystemEntryPoint = new SoundSystemEntryPoint(Looper.getMainLooper());
+                Looper mainLooper = Looper.getMainLooper();
+                SoundSystemEntryPoint soundSystemEntryPoint = new SoundSystemEntryPoint(mainLooper);
                 sInstance = new SoundSystemImpl(soundSystemEntryPoint);
             }
             return sInstance;
@@ -155,6 +156,5 @@ public interface SoundSystem {
          */
         @MainThread
         void onExtractionCompleted();
-
     }
 }
