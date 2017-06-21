@@ -95,8 +95,9 @@ class SoundSystemImpl implements SoundSystem {
      *
      * @param filePath Path of the file on the hard disk.
      */
-    public void loadFile(final String filePath) {
-        soundSystemEntryPoint.native_load_file(filePath);
+    public void loadFileOpenSl(final String filePath) {
+        Preconditions.checkNotNull(filePath);
+        soundSystemEntryPoint.native_load_file_open_sl(filePath);
     }
 
     /**
@@ -104,13 +105,24 @@ class SoundSystemImpl implements SoundSystem {
      *
      * @param filePath Path of the file on the hard disk.
      */
-    public void loadFileWithFfmpeg(final String filePath) {
+    public void loadFileMediaCodec(final String filePath) {
+        Preconditions.checkNotNull(filePath);
+        soundSystemEntryPoint.native_load_file_media_codec(filePath);
+    }
+
+    /**
+     * Load track file into the RAM.
+     *
+     * @param filePath Path of the file on the hard disk.
+     */
+    public void loadFileFFMPEGJavaThread(final String filePath) {
+        Preconditions.checkNotNull(filePath);
         final Thread thread = new Thread("extractor-thread") {
             @Override
             public void run() {
                 super.run();
                 Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO);
-                soundSystemEntryPoint.native_load_file_with_synchronous_ffmpeg(filePath);
+                soundSystemEntryPoint.native_load_file_synchronous_ffmpeg(filePath);
             }
         };
         thread.setPriority(Thread.MAX_PRIORITY);

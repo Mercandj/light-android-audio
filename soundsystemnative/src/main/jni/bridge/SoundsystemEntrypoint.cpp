@@ -1,11 +1,5 @@
 #include "SoundsystemEntrypoint.h"
 
-static double now_ms(void) {
-    struct timespec res;
-    clock_gettime(CLOCK_REALTIME, &res);
-    return 1000.0 * res.tv_sec + (double) res.tv_nsec / 1e6;
-}
-
 void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1init_1soundsystem(
         JNIEnv *env,
         jclass jclass1,
@@ -14,7 +8,7 @@ void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1init_1
     _soundSystemCallback = new SoundSystemCallback(env, jclass1);
     _soundSystem = new SoundSystem(_soundSystemCallback, sample_rate, frames_per_buf);
 #ifdef MEDIACODEC_EXTRACTOR
-    _singleThreadNdkExtractor = new SingleThreadNdkExtractor(_soundSystem, sample_rate);
+    _singleThreadMediaCodecExtractor = new SingleThreadMediaCodecExtractor(_soundSystem, sample_rate);
 #endif
     _synchronousFfmpegExtractor = new SynchronousFfmpegExtractor(_soundSystem, sample_rate);
 
@@ -30,7 +24,18 @@ jboolean Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1is
     return (jboolean) isSoundSystemInit();
 }
 
-void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1load_1file(
+void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1load_1file_1open_1sl(
+        JNIEnv *env,
+        jclass jclass1,
+        jstring filePath) {
+    if (!isSoundSystemInit()) {
+        return;
+    }
+    _soundSystem->extractMusic(dataLocatorFromURLString(env, filePath));
+    _soundSystem->initAudioPlayer();
+}
+
+void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1load_1file_1media_1codec(
         JNIEnv *env,
         jclass jclass1,
         jstring filePath) {
@@ -39,17 +44,15 @@ void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1load_1
     }
 #ifdef MEDIACODEC_EXTRACTOR
     const char *urf8FileURLString = env->GetStringUTFChars(filePath, NULL);
-    _singleThreadNdkExtractor->extract(urf8FileURLString);
+    _singleThreadMediaCodecExtractor->extract(urf8FileURLString);
 #else
-    _soundSystem->extractMusic(dataLocatorFromURLString(env, filePath));
+    assert(false);
 #endif
-    _soundSystem->initAudioPlayer();
-
     _soundSystem->initAudioPlayer();
 }
 
 void
-Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1load_1file_1with_1synchronous_1ffmpeg(
+Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1load_1file_1synchronous_1ffmpeg(
         JNIEnv *env,
         jclass jclass1,
         jstring filePath) {
@@ -142,9 +145,9 @@ void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1releas
     }
 
 #ifdef MEDIACODEC_EXTRACTOR
-    if (_singleThreadNdkExtractor != nullptr) {
-        delete _singleThreadNdkExtractor;
-        _singleThreadNdkExtractor = nullptr;
+    if (_singleThreadMediaCodecExtractor != nullptr) {
+        delete _singleThreadMediaCodecExtractor;
+        _singleThreadMediaCodecExtractor = nullptr;
     }
 #endif
 

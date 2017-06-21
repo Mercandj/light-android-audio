@@ -21,8 +21,8 @@ model {
             CFlags.addAll(["-DMEDIACODEC_EXTRACTOR"])
             stl "stlport_static"
         } else if (rootProject.ext.minSdkVersion >= 21) {
-            cppFlags.addAll(["-DFLOAT_PLAYER"])
-            CFlags.addAll(["-DFLOAT_PLAYER"])
+            cppFlags.addAll(["-DMEDIACODEC_EXTRACTOR", "-DFLOAT_PLAYER"])
+            CFlags.addAll(["-DMEDIACODEC_EXTRACTOR", "-DFLOAT_PLAYER"])
             stl "stlport_static"
         } else {
             stl "stlport_static"

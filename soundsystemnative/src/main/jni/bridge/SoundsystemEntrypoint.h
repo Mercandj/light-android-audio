@@ -9,7 +9,7 @@
 #include <assert.h>
 #include <audio/extractor/SynchronousFfmpegExtractor.h>
 
-#include "audio/extractor/SingleThreadNdkExtractor.h"
+#include "audio/extractor/SingleThreadMediaCodecExtractor.h"
 
 
 #include "audio/SoundSystem.h"
@@ -23,7 +23,7 @@ static SoundSystem *_soundSystem;
 static SoundSystemCallback *_soundSystemCallback;
 
 #ifdef MEDIACODEC_EXTRACTOR
-static SingleThreadNdkExtractor *_singleThreadNdkExtractor;
+static SingleThreadMediaCodecExtractor *_singleThreadMediaCodecExtractor;
 #endif
 
 static SynchronousFfmpegExtractor *_synchronousFfmpegExtractor;
@@ -40,12 +40,17 @@ void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1init_1
         jint sample_rate,
         jint frames_per_buf);
 
-void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1load_1file(
+void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1load_1file_1open_1sl(
         JNIEnv *env,
         jclass jclass1,
         jstring filePath);
 
-void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1load_1file_1with_1synchronous_1ffmpeg(
+void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1load_1file_1media_1codec(
+        JNIEnv *env,
+        jclass jclass1,
+        jstring filePath);
+
+void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1load_1file_1synchronous_1ffmpeg(
         JNIEnv *env,
         jclass jclass1,
         jstring filePath);

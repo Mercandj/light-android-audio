@@ -49,14 +49,21 @@ public interface SoundSystem {
      *
      * @param filePath Path of the file on the hard disk.
      */
-    void loadFile(final String filePath);
+    void loadFileOpenSl(final String filePath);
 
     /**
      * Load track file into the RAM.
      *
      * @param filePath Path of the file on the hard disk.
      */
-    void loadFileWithFfmpeg(final String filePath);
+    void loadFileMediaCodec(final String filePath);
+
+    /**
+     * Load track file into the RAM.
+     *
+     * @param filePath Path of the file on the hard disk.
+     */
+    void loadFileFFMPEGJavaThread(final String filePath);
 
     /**
      * Play music if params is true, otherwise, pause the music.

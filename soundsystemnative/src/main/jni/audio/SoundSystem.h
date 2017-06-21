@@ -27,6 +27,7 @@
 
 // Use to compute extraction duration
 #include <time.h>
+#include <utils/time_utils.h>
 
 #include "listener/SoundSystemCallback.h"
 

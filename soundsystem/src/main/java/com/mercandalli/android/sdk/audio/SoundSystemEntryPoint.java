@@ -164,10 +164,13 @@ class SoundSystemEntryPoint {
     native boolean native_is_soundsystem_init();
 
     /* package */
-    native void native_load_file(String filePath);
+    native void native_load_file_open_sl(String filePath);
 
     /* package */
-    native void native_load_file_with_synchronous_ffmpeg(String filePath);
+    native void native_load_file_media_codec(String filePath);
+
+    /* package */
+    native void native_load_file_synchronous_ffmpeg(String filePath);
 
     /* package */
     native void native_release_soundsystem();

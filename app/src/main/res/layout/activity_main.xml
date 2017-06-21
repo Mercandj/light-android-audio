@@ -4,7 +4,7 @@
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".main.MainActivity">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/activity_main_toolbar"
@@ -17,8 +17,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="?android:attr/actionBarSize"
-        android:padding="24dp"
-        android:textColor="#bbbbbb"
+        android:padding="16dp"
+        android:textColor="#999999"
+        android:textSize="12sp"
         tools:text="Test" />
 
     <LinearLayout
@@ -29,33 +30,47 @@
         android:orientation="vertical">
 
         <Button
-            android:id="@+id/btn_extract_file"
+            android:id="@+id/btn_extract_file_opensl_native_thread"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="Extract" />
+            android:text="Extract Decode\nOPENSL 1 Native thread" />
 
         <Button
-            android:id="@+id/btn_extract_file_ffmpeg"
+            android:id="@+id/btn_extract_file_mediacodec_native_thread"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="Extract FFMPEG" />
-
-        <ToggleButton
-            android:id="@+id/toggle_play_pause"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:textOff="Play"
-            android:textOn="Pause" />
+            android:text="Extract Decode\nMEDIACODEC 1 Native thread" />
 
         <Button
-            android:id="@+id/btn_stop"
+            android:id="@+id/btn_extract_file_ffmpeg_java_thread"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="Stop" />
+            android:text="Extract Decode\nFFMPEG 1 Java thread" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ToggleButton
+                android:id="@+id/toggle_play_pause"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:textOff="Play"
+                android:textOn="Pause" />
+
+            <Button
+                android:id="@+id/btn_stop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="Stop" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
