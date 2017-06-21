@@ -24,7 +24,7 @@ Extract and decode from internal storage the tracks
 | Pixel 8.0.0 op3              | 90.0s                  | crash                      | 01.0s                |
 | Nexus 5X 8.0.0 op3           | 118 s                  | crash                      | 04.2s                |  
 | Samsung gs7 SM-G930T 7.0     | 116 s                  | crash                      | 01.1s                |
-| Samsung tab s2 SM-T810 6.0.1 |     s                  |     s                      |     s                |
+| Samsung tab s2 SM-T810 6.0.1 | 05.4s                  | crash                      | 01.9s                |
 | Wiko FEVER 6.0               | /                      |     s                      |     s                |
 | Nexus 5 5.1.1                |     s                  |     s                      |     s                |
 
@@ -42,7 +42,7 @@ Extract and decode from internal storage the tracks
 | Pixel 8.0.0 op3              | 00.3s                  | 01.9s                      | 00.7s                |
 | Nexus 5X 8.0.0 op3           | 00.5s                  | 01.7s                      | 02.7s                |
 | Samsung gs7 SM-G930T 7.0     | 01.9s                  | 05.5s                      | 00.8s                |
-| Samsung tab s2 SM-T810 6.0.1 |     s                  |     s                      |     s                |
+| Samsung tab s2 SM-T810 6.0.1 | 00.1s                  | 01.4s                      | 01.4s                |
 | Wiko FEVER 6.0               | /                      |     s                      |     s                |
 | Nexus 5 5.1.1                |     s                  |     s                      |     s                |
 
