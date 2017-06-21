@@ -1,24 +1,39 @@
 package com.mercandalli.android.apps.audio.file;
 
 import android.content.res.AssetManager;
+import android.support.annotation.StringDef;
 
 import java.io.File;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 public interface FileManager {
 
-    void initialize(String fileDir);
+    @Retention(RetentionPolicy.SOURCE)
+    @StringDef({
+            FORMAT_AAC,
+            FORMAT_MP3,
+            FORMAT_WAV})
+    @interface Format {
+    }
+
+    String FORMAT_AAC = "FORMAT_AAC";
+    String FORMAT_MP3 = "FORMAT_MP3";
+    String FORMAT_WAV = "FORMAT_WAV";
+
+    void load(String fileDir, @Format String format);
 
     boolean isInitialized();
 
     File getFile();
 
-    void registerInitializeListener(InitializeListener listener);
+    void registerOnLoadListener(OnLoadListener listener);
 
-    void unregisterInitializeListener(InitializeListener listener);
+    void unregisterOnLoadListener(OnLoadListener listener);
 
-    interface InitializeListener {
+    interface OnLoadListener {
 
-        void onFileManagerInitialized();
+        void onLoadEnded(@Format String format);
     }
 
     class Instance {

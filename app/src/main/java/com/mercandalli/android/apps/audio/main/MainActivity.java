@@ -32,6 +32,9 @@ import java.lang.annotation.RetentionPolicy;
  */
 public class MainActivity extends AppCompatActivity {
 
+    @FileManager.Format
+    private static final String FORMAT = FileManager.FORMAT_WAV;
+
     @Retention(RetentionPolicy.SOURCE)
     @StringDef({
             ACTION_NO_ACTION,
@@ -48,9 +51,6 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
 
-    /**
-     * UI
-     */
     private Button toggleStop;
     private Button btnExtractFileMediaCodecNativeThread;
     private Button btnExtractFfmpegJavaThread;
@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
 
     private SoundSystem soundSystem;
     private FileManager fileManager;
-    private FileManager.InitializeListener fileManagerInitializeListener;
+    private FileManager.OnLoadListener fileManagerInitializeListener;
     private AudioFeaturesManager audioFeaturesManager;
 
     @Action
@@ -88,8 +88,8 @@ public class MainActivity extends AppCompatActivity {
                     audioFeaturesManager.getFramesPerBuffer());
         }
         if (!fileManager.isInitialized()) {
-            fileManager.registerInitializeListener(fileManagerInitializeListener);
-            fileManager.initialize(getFilesDir().getAbsolutePath());
+            fileManager.registerOnLoadListener(fileManagerInitializeListener);
+            fileManager.load(getFilesDir().getAbsolutePath(), FORMAT);
         }
 
         initUI();
@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
             detachListeners();
             soundSystem.release();
         }
-        fileManager.unregisterInitializeListener(fileManagerInitializeListener);
+        fileManager.unregisterOnLoadListener(fileManagerInitializeListener);
         super.onDestroy();
     }
 
@@ -223,7 +223,11 @@ public class MainActivity extends AppCompatActivity {
             btnExtractFileOpenSlNativeThread.setEnabled(false);
             btnExtractFileMediaCodecNativeThread.setEnabled(false);
             btnExtractFfmpegJavaThread.setEnabled(false);
-            log("Extraction started " + action);
+            log("");
+            log("---------------------------------");
+            log("[Extraction] Started");
+            log("[Extraction] Action: " + action);
+            log("[Extraction] Path: " + fileManager.getFile().getAbsolutePath());
         }
 
         @Override
@@ -231,8 +235,10 @@ public class MainActivity extends AppCompatActivity {
             extractionDuration = System.currentTimeMillis() - extractionStartTimestamp;
             togglePlayPause.setEnabled(true);
             toggleStop.setEnabled(true);
-            log("Extraction ended " + action);
-            log("Extraction duration " + (extractionDuration / 1_000f) + "s");
+            log("[Extraction] Ended " + action);
+            log("[Extraction] Duration " + (extractionDuration / 1_000f) + "s");
+            log("---------------------------------");
+            log("");
             action = ACTION_NO_ACTION;
         }
     };
@@ -281,7 +287,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadTrackOpenSlOrAskPermission() {
         action = ACTION_LOAD_FILE_OPEN_SL;
-        final int permissionCheck = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        final int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
         if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
             String path = fileManager.getFile().getAbsolutePath();
             soundSystem.loadFileOpenSl(path);
@@ -292,7 +298,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadTrackMediaCodecOrAskPermission() {
         action = ACTION_LOAD_FILE_MEDIA_CODEC;
-        final int permissionCheck = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        final int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
         if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
             String path = fileManager.getFile().getAbsolutePath();
             soundSystem.loadFileMediaCodec(path);
@@ -303,7 +309,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadTrackFfmpefJavaThreadOrAskPermission() {
         action = ACTION_LOAD_FILE_FFMPEG_JAVA_THREAD;
-        int permissionCheck = ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
         if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
             String path = fileManager.getFile().getAbsolutePath();
             soundSystem.loadFileFFMPEGJavaThread(path);
@@ -331,10 +337,10 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    private FileManager.InitializeListener createFileManagerInitializeListener() {
-        return new FileManager.InitializeListener() {
+    private FileManager.OnLoadListener createFileManagerInitializeListener() {
+        return new FileManager.OnLoadListener() {
             @Override
-            public void onFileManagerInitialized() {
+            public void onLoadEnded(@FileManager.Format String format) {
                 syncButtonsWithSoundSystem();
             }
         };
