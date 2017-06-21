@@ -22,7 +22,8 @@ Result are avg on 2, 3 launches...
 | Pixel 8.0.0 op3              | 75s                    | 18s                        | 1.5s                 |
 | Samsung tab s2 SM-T810 6.0.1 | 4.9s                   | 3.6s                       | 2.5s                 |
 | Samsung gs7 SM-G930T 7.0     | 71s                    | 35s                        | 1.5s                 |                      |
-| n5 8.0.0 op3                 | 99s                    | 30s                        | 1.9s                 |
+| Nexus 5 8.0.0 op3            | 99s                    | 30s                        | 1.9s                 |
+| Wiko FEVER 6.0               | /                      | 4s                         | 3s                   |
 
 
 ----
