@@ -33,7 +33,7 @@ import java.lang.annotation.RetentionPolicy;
 public class MainActivity extends AppCompatActivity {
 
     @FileManager.Format
-    private static final String FORMAT = FileManager.FORMAT_WAV;
+    private static final String FORMAT = FileManager.FORMAT_AAC;
 
     @Retention(RetentionPolicy.SOURCE)
     @StringDef({
