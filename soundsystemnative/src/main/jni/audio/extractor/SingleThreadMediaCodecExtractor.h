@@ -22,6 +22,10 @@
  */
 #define RAW_BUFFER_SIZE 32768
 
+#define MP3 0
+#define RAW 1
+#define M4A 2
+
 typedef struct {
     AMediaExtractor *ex;
     AMediaCodec *codec;
@@ -35,7 +39,7 @@ typedef struct {
     double extractionTimeStart;
     unsigned int extractionPosition;
     unsigned short numberChannel;
-    bool isRawFormat;
+    int format;
 
 } workerdata;
 

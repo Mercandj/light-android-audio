@@ -21,12 +21,12 @@ Extract and decode from internal storage the tracks:
 
 | Device \ Techno on AAC       | OpenSL 1 Native thread | MediaCodec 1 Native thread | FFMPEG 1 Java thread |
 |------------------------------|------------------------|----------------------------|----------------------|
-| Pixel 8.0.0 op3              | 90.0s                  | crash                      | 01.0s                |
-| Nexus 5X 8.0.0 op3           | 118 s                  | crash                      | 04.2s                |  
-| Samsung gs7 SM-G930T 7.0     | 116 s                  | crash                      | 01.1s                |
-| Samsung tab s2 SM-T810 6.0.1 | 05.4s                  | crash                      | 01.9s                |
-| Nexus 5 5.1.1                | 05.7s                  | crash                      | 03.2s                |
-| Wiko FEVER 6.0               | /                      |     s                      |     s                |
+| Pixel 8.0.0 op3              | 90.0s                  | 20.0s                      | 01.0s                |
+| Nexus 5X 8.0.0 op3           | 118 s                  | 42.0s                      | 04.2s                |  
+| Samsung gs7 SM-G930T 7.0     | 116 s                  | 27.0s                      | 01.1s                |
+| Samsung tab s2 SM-T810 6.0.1 | 05.4s                  | 04.3s                      | 01.9s                |
+| Nexus 5 5.1.1                | 05.7s                  | /                          | 03.2s                |
+| Wiko FEVER 6.0               | /                      | /                          | /                    |
 
 | Device \ Techno on MP3       | OpenSL 1 Native thread | MediaCodec 1 Native thread | FFMPEG 1 Java thread |
 |------------------------------|------------------------|----------------------------|----------------------|

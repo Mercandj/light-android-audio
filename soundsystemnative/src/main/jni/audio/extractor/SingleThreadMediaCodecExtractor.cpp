@@ -3,7 +3,7 @@
 #include "SingleThreadMediaCodecExtractor.h"
 
 SingleThreadMediaCodecExtractor::SingleThreadMediaCodecExtractor(SoundSystem *soundSystem,
-                                                   const unsigned short frameRate) :
+                                                                 const unsigned short frameRate) :
         _device_frame_rate(frameRate) {
     data.soundSystem = soundSystem;
 }
@@ -43,15 +43,18 @@ bool SingleThreadMediaCodecExtractor::extract(const char *filename) {
 
             AMediaExtractor_selectTrack(ex, 0);
 
-            bool isRawFormat = false;
+            int audio_format = MP3;
 
             // Force codec usage for MP3 and RAW (Wav) audio tracks
             AMediaCodec *codec = NULL;
             if (strncmp(mime, "audio/mpeg", 10) == 0) {
                 codec = AMediaCodec_createCodecByName("OMX.google.mp3.decoder");
             } else if (strncmp(mime, "audio/raw", 9) == 0) {
+                audio_format = RAW;
                 codec = AMediaCodec_createCodecByName("OMX.google.raw.decoder");
-                isRawFormat = true;
+            } else if (strncmp(mime, "audio/mp4a-latm", 15) == 0) {
+                audio_format = M4A;
+                codec = AMediaCodec_createCodecByName("OMX.google.aac.decoder");
             } else {
                 codec = AMediaCodec_createDecoderByType(mime);
             }
@@ -62,7 +65,7 @@ bool SingleThreadMediaCodecExtractor::extract(const char *filename) {
             d->codec = codec;
             d->sawInputEOS = false;
             d->sawOutputEOS = false;
-            d->isRawFormat = isRawFormat;
+            d->format = audio_format;
 
             AMediaCodec_start(codec);
 
@@ -147,12 +150,15 @@ void *SingleThreadMediaCodecExtractor::doExtraction(void *) {
                 size_t bufsize;
                 uint8_t *buf = AMediaCodec_getOutputBuffer(d->codec, (size_t) status, &bufsize);
 
-                if (d->isRawFormat) {
+                if (d->format == RAW) {
                     memcpy(d->extractedData + d->extractionPosition, buf, bufsize);
                     // Force step of RAW_BUFFER_SIZE, it's like setting buf size to RAW_BUFFER_SIZE
                     // We don't trust bufSize value because on some devices, there may be less
                     // data in the returned buffer than bufSize value.
                     d->extractionPosition += RAW_BUFFER_SIZE;
+                } else if (d->format == M4A) {
+                    memcpy(d->extractedData + d->extractionPosition, buf, bufsize);
+                    d->extractionPosition += bufsize / d->numberChannel / 4;
                 } else {
                     memcpy(d->extractedData + d->extractionPosition, buf, bufsize);
                     d->extractionPosition += bufsize / d->numberChannel;
