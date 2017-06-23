@@ -30,13 +30,14 @@ public:
 private:
 
     const unsigned short _frameRate;
+    SoundSystem *_soundSystem;
+
     short *_extractedData;
     int32_t _file_sample_rate;
     int32_t _file_number_channels;
     int64_t _file_duration;
     unsigned int _file_total_frames;
     int _size;
-    SoundSystem *_soundSystem;
 
     void extractMetadata(
             const AVFormatContext *format,
