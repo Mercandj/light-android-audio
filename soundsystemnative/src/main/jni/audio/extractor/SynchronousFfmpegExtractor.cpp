@@ -86,12 +86,14 @@ bool SynchronousFfmpegExtractor::extract(const char *path) {
 
     extractMetadata(format, codec);
     _soundSystem->notifyExtractionStarted();
-    decode_audio_file(format, stream, codec, &_extractedData, &_size);
+    decodeAudioFile(format, stream, codec, &_extractedData, &_size);
     _soundSystem->setExtractedData(_extractedData);
     return true;
 }
 
-void SynchronousFfmpegExtractor::extractMetadata(AVFormatContext *format, AVCodecContext *codec) {
+void SynchronousFfmpegExtractor::extractMetadata(
+        const AVFormatContext *format,
+        const AVCodecContext *codec) {
     // extract track information
     _file_duration = format->duration;
     _file_number_channels = codec->channels;
@@ -106,7 +108,7 @@ void SynchronousFfmpegExtractor::extractMetadata(AVFormatContext *format, AVCode
     _soundSystem->setTotalNumberFrames(_file_total_frames);
 }
 
-int SynchronousFfmpegExtractor::decode_audio_file(
+int SynchronousFfmpegExtractor::decodeAudioFile(
         AVFormatContext *format,
         AVStream *stream,
         AVCodecContext *codec,

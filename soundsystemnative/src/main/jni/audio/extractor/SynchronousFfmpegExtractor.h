@@ -27,15 +27,6 @@ public:
 
     bool extract(const char *path);
 
-    void extractMetadata(AVFormatContext *format, AVCodecContext *codec);
-
-    int decode_audio_file(
-            AVFormatContext *format,
-            AVStream *stream,
-            AVCodecContext *codec,
-            short **data,
-            int *size);
-
 private:
 
     const unsigned short _frameRate;
@@ -44,9 +35,19 @@ private:
     int32_t _file_number_channels;
     int64_t _file_duration;
     unsigned int _file_total_frames;
-
-    SoundSystem *_soundSystem;
     int _size;
+    SoundSystem *_soundSystem;
+
+    void extractMetadata(
+            const AVFormatContext *format,
+            const AVCodecContext *codec);
+
+    int decodeAudioFile(
+            AVFormatContext *format,
+            AVStream *stream,
+            AVCodecContext *codec,
+            short **data,
+            int *size);
 };
 
 #endif // SOUND_SYSTEM_AUDIO_EXTRACTOR_SYNCHRONOUS_FFMPEG_EXTRACTOR_H
