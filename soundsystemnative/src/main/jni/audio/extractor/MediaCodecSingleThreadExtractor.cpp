@@ -1,15 +1,15 @@
 
 #include <utils/time_utils.h>
-#include "SingleThreadMediaCodecExtractor.h"
+#include "MediaCodecSingleThreadExtractor.h"
 
-SingleThreadMediaCodecExtractor::SingleThreadMediaCodecExtractor(SoundSystem *soundSystem,
+MediaCodecSingleThreadExtractor::MediaCodecSingleThreadExtractor(SoundSystem *soundSystem,
                                                                  const unsigned short frameRate) :
         _device_frame_rate(frameRate) {
     data.soundSystem = soundSystem;
 }
 
 // shut down the native media system
-SingleThreadMediaCodecExtractor::~SingleThreadMediaCodecExtractor() {
+MediaCodecSingleThreadExtractor::~MediaCodecSingleThreadExtractor() {
     workerdata *d = &data;
     AMediaCodec_stop(d->codec);
     AMediaCodec_delete(d->codec);
@@ -18,7 +18,7 @@ SingleThreadMediaCodecExtractor::~SingleThreadMediaCodecExtractor() {
     d->sawOutputEOS = true;
 }
 
-bool SingleThreadMediaCodecExtractor::extract(const char *filename) {
+bool MediaCodecSingleThreadExtractor::extract(const char *filename) {
     AMediaExtractor *ex = AMediaExtractor_new();
     media_status_t err = AMediaExtractor_setDataSource(ex, filename);
 
@@ -84,7 +84,7 @@ bool SingleThreadMediaCodecExtractor::extract(const char *filename) {
     }
 }
 
-void SingleThreadMediaCodecExtractor::extractMetadata(AMediaFormat *format) {
+void MediaCodecSingleThreadExtractor::extractMetadata(AMediaFormat *format) {
     // extract track information
     AMediaFormat_getInt32(format, AMEDIAFORMAT_KEY_CHANNEL_COUNT, &_file_number_channels);
     AMediaFormat_getInt64(format, AMEDIAFORMAT_KEY_DURATION, &_file_duration);
@@ -100,7 +100,7 @@ void SingleThreadMediaCodecExtractor::extractMetadata(AMediaFormat *format) {
     data.soundSystem->setTotalNumberFrames(_file_total_frames);
 }
 
-void SingleThreadMediaCodecExtractor::startExtractorThread() {
+void MediaCodecSingleThreadExtractor::startExtractorThread() {
     pthread_attr_t attr;
     pthread_attr_init(&attr);
 
@@ -109,7 +109,7 @@ void SingleThreadMediaCodecExtractor::startExtractorThread() {
     pthread_detach(worker);
 }
 
-void *SingleThreadMediaCodecExtractor::doExtraction(void *) {
+void *MediaCodecSingleThreadExtractor::doExtraction(void *) {
     workerdata *d = &data;
 
     while (!d->sawInputEOS || !d->sawOutputEOS) {

@@ -7,9 +7,9 @@
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
 #include <assert.h>
-#include <audio/extractor/SynchronousFfmpegExtractor.h>
+#include <audio/extractor/FFmpegSynchronousExtractor.h>
 
-#include "audio/extractor/SingleThreadMediaCodecExtractor.h"
+#include "audio/extractor/MediaCodecSingleThreadExtractor.h"
 
 
 #include "audio/SoundSystem.h"
@@ -23,10 +23,10 @@ static SoundSystem *_soundSystem;
 static SoundSystemCallback *_soundSystemCallback;
 
 #ifdef MEDIACODEC_EXTRACTOR
-static SingleThreadMediaCodecExtractor *_singleThreadMediaCodecExtractor;
+static MediaCodecSingleThreadExtractor *_mediaCodecSingleThreadExtractor;
 #endif
 
-static SynchronousFfmpegExtractor *_synchronousFfmpegExtractor;
+static FFmpegSynchronousExtractor *_ffmpegSynchronousExtractor;
 
 #ifdef AAUDIO
 static AAudioManager *_aaudio_manager;
@@ -76,20 +76,9 @@ void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1stop(
         JNIEnv *env,
         jclass jclass1);
 
-void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1extract_1and_1play(
-        JNIEnv *env,
-        jobject obj,
-        jstring filePath);
-
 void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1release_1soundsystem(
         JNIEnv *env,
         jclass jclass1);
-
-void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1extract_1from_1assets_1and_1play(
-        JNIEnv *env,
-        jobject obj,
-        jobject assetManager,
-        jstring filename);
 
 jshortArray Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1get_1extracted_1data(
         JNIEnv *env,
@@ -103,9 +92,5 @@ jshortArray Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_
 bool isSoundSystemInit();
 
 SLDataLocator_URI *dataLocatorFromURLString(JNIEnv *env, jstring fileURLString);
-
-void convertFloatDataToShort(float *data, unsigned int length, short *dst);
-
-SLDataLocator_AndroidFD getTrackFromAsset(JNIEnv *env, jobject assetManager, jstring filename);
 
 #endif //TEST_SOUNDSYSTEM_SOUNDSYSTEM_ENTRYPOINT_H

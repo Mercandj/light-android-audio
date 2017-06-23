@@ -8,9 +8,13 @@ void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1init_1
     _soundSystemCallback = new SoundSystemCallback(env, jclass1);
     _soundSystem = new SoundSystem(_soundSystemCallback, sample_rate, frames_per_buf);
 #ifdef MEDIACODEC_EXTRACTOR
-    _singleThreadMediaCodecExtractor = new SingleThreadMediaCodecExtractor(_soundSystem, sample_rate);
+    _mediaCodecSingleThreadExtractor = new MediaCodecSingleThreadExtractor(
+            _soundSystem,
+            sample_rate);
 #endif
-    _synchronousFfmpegExtractor = new SynchronousFfmpegExtractor(_soundSystem, sample_rate);
+    _ffmpegSynchronousExtractor = new FFmpegSynchronousExtractor(
+            _soundSystem,
+            sample_rate);
 
 #ifdef AAUDIO
     _aaudio_manager = new AAudioManager();
@@ -44,7 +48,7 @@ void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1load_1
     }
 #ifdef MEDIACODEC_EXTRACTOR
     const char *urf8FileURLString = env->GetStringUTFChars(filePath, NULL);
-    _singleThreadMediaCodecExtractor->extract(urf8FileURLString);
+    _mediaCodecSingleThreadExtractor->extract(urf8FileURLString);
 #else
     assert(false);
 #endif
@@ -61,7 +65,7 @@ Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1load_1file_
     }
     const char *urf8FileURLString = env->GetStringUTFChars(filePath, NULL);
     _soundSystem->initAudioPlayer();
-    _synchronousFfmpegExtractor->extract(urf8FileURLString);
+    _ffmpegSynchronousExtractor->extract(urf8FileURLString);
     _soundSystem->setIsLoaded(true);
     _soundSystem->notifyExtractionEnded();
 }
@@ -103,8 +107,9 @@ jboolean Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1is
     return (jboolean) _soundSystem->isLoaded();
 }
 
-void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1stop(JNIEnv *env,
-                                                                               jclass jclass1) {
+void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1stop(
+        JNIEnv *env,
+        jclass jclass1) {
     if (!isSoundSystemInit()) {
         return;
     }
@@ -114,40 +119,18 @@ void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1stop(J
 #endif
 }
 
-void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1extract_1and_1play(
-        JNIEnv *env,
-        jobject obj,
-        jstring filePath) {
-    if (!isSoundSystemInit()) {
-        return;
-    }
-    _soundSystem->extractAndPlayDirectly(dataLocatorFromURLString(env, filePath));
-}
-
-void
-Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1extract_1from_1assets_1and_1play(
-        JNIEnv *env,
-        jobject obj,
-        jobject assetManager,
-        jstring filename) {
-    if (!isSoundSystemInit()) {
-        return;
-    }
-    SLDataLocator_AndroidFD locator = getTrackFromAsset(env, assetManager, filename);
-    _soundSystem->extractAndPlayDirectly(&locator);
-}
-
 void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1release_1soundsystem(
-        JNIEnv *env, jclass jclass1) {
+        JNIEnv *env,
+        jclass jclass1) {
     if (_soundSystem != nullptr) {
         delete _soundSystem;
         _soundSystem = nullptr;
     }
 
 #ifdef MEDIACODEC_EXTRACTOR
-    if (_singleThreadMediaCodecExtractor != nullptr) {
-        delete _singleThreadMediaCodecExtractor;
-        _singleThreadMediaCodecExtractor = nullptr;
+    if (_mediaCodecSingleThreadExtractor != nullptr) {
+        delete _mediaCodecSingleThreadExtractor;
+        _mediaCodecSingleThreadExtractor = nullptr;
     }
 #endif
 
@@ -198,30 +181,6 @@ Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1get_1extrac
     return jExtractedData;
 }
 
-SLDataLocator_AndroidFD getTrackFromAsset(JNIEnv *env, jobject assetManager, jstring filename) {
-    // convert Java string to UTF-8
-    const char *utf8 = env->GetStringUTFChars(filename, NULL);
-    assert(NULL != utf8);
-
-    // use asset manager to open asset by filename
-    AAssetManager *mgr = AAssetManager_fromJava(env, assetManager);
-    assert(NULL != mgr);
-    AAsset *asset = AAssetManager_open(mgr, utf8, AASSET_MODE_UNKNOWN);
-
-    // release the Java string and UTF-8
-    env->ReleaseStringUTFChars(filename, utf8);
-
-    // open asset as file descriptor
-    off_t start, length;
-    int fd = AAsset_openFileDescriptor(asset, &start, &length);
-    assert(0 <= fd);
-    AAsset_close(asset);
-
-    // configure audio source
-    SLDataLocator_AndroidFD loc_fd = {SL_DATALOCATOR_ANDROIDFD, fd, start, length};
-    return loc_fd;
-}
-
 bool isSoundSystemInit() {
     if (_soundSystem == NULL) {
         LOGE("_soundSystem is not initialize");
@@ -238,16 +197,4 @@ SLDataLocator_URI *dataLocatorFromURLString(JNIEnv *env, jstring fileURLString) 
     fileLoc->locatorType = SL_DATALOCATOR_URI;
     fileLoc->URI = (SLchar *) urf8FileURLString;
     return fileLoc;
-}
-
-void convertFloatDataToShort(float *src, unsigned int length, short *dst) {
-    for (int i = 0; i < length; i++) {
-        float tmp = src[i];
-        if (tmp > 1.f) {
-            tmp = 1.f;
-        } else if (tmp < -1.f) {
-            tmp = -1.f;
-        }
-        dst[i] = tmp * SHRT_MAX;
-    }
 }

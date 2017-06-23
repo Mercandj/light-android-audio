@@ -278,47 +278,6 @@ bool SoundSystem::isPlaying() {
     return getPlayerState() == SL_PLAYSTATE_PLAYING;
 }
 
-void SoundSystem::extractAndPlayDirectly(void *sourceFile) {
-    if (_playerPlay != nullptr && isPlaying()) {
-        return;
-    }
-
-    SLresult result;
-
-    SLDataFormat_MIME format_mime;
-    format_mime.formatType = SL_DATAFORMAT_MIME;
-    format_mime.mimeType = nullptr;
-    format_mime.containerType = SL_CONTAINERTYPE_UNSPECIFIED;
-
-    SLDataSource audioSrc;
-    audioSrc.pLocator = sourceFile;
-    audioSrc.pFormat = &format_mime;
-
-    // configure audio sink
-    SLDataLocator_OutputMix loc_outmix = {SL_DATALOCATOR_OUTPUTMIX, _outPutMixObj};
-    SLDataSink audioSnk = {&loc_outmix, nullptr};
-
-    result = (*_engine)->CreateAudioPlayer(_engine, &_playerObject, &audioSrc, &audioSnk,
-                                           0, nullptr, nullptr);
-    SLASSERT(result);
-
-    // realize the player
-    result = (*_playerObject)->Realize(_playerObject, SL_BOOLEAN_FALSE);
-    SLASSERT(result);
-
-    // get the play interface
-    result = (*_playerObject)->GetInterface(_playerObject, SL_IID_PLAY, &_playerPlay);
-    SLASSERT(result);
-    // register callback on the player event
-    result = (*_playerPlay)->RegisterCallback(_playerPlay, extractionAndPlayEndCallback, this);
-    // enables/disables notification of playback events.
-    result = (*_playerPlay)->SetCallbackEventsMask(_playerPlay, SL_PLAYEVENT_HEADATEND);
-    SLASSERT(result);
-
-    result = (*_playerPlay)->SetPlayState(_playerPlay, SL_PLAYSTATE_PLAYING);
-    SLASSERT(result);
-}
-
 void SoundSystem::extractMetaData() {
     (*_extractPlayerPlay)->GetDuration(_extractPlayerPlay, &_musicDuration);
     _totalFrames = (unsigned int) (((double) _musicDuration * (double) _sampleRate / 1000.0));

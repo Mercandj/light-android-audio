@@ -1,6 +1,6 @@
 
-#ifndef SOUND_SYSTEM_AUDIO_EXTRACTOR_SYNCHRONOUS_FFMPEG_EXTRACTOR_H
-#define SOUND_SYSTEM_AUDIO_EXTRACTOR_SYNCHRONOUS_FFMPEG_EXTRACTOR_H
+#ifndef SOUND_SYSTEM_AUDIO_EXTRACTOR_FFMPEG_SYNCHRONOUS_EXTRACTOR_H
+#define SOUND_SYSTEM_AUDIO_EXTRACTOR_FFMPEG_SYNCHRONOUS_EXTRACTOR_H
 
 #include <jni.h>
 #include <stdio.h>
@@ -18,12 +18,12 @@
 #include <libavformat/avformat.h>
 #include <libswresample/swresample.h>
 
-class SynchronousFfmpegExtractor {
+class FFmpegSynchronousExtractor {
 public:
 
-    SynchronousFfmpegExtractor(SoundSystem *soundSystem, const unsigned short frameRate);
+    FFmpegSynchronousExtractor(SoundSystem *soundSystem, const unsigned short frameRate);
 
-    ~SynchronousFfmpegExtractor();
+    ~FFmpegSynchronousExtractor();
 
     bool extract(const char *path);
 
@@ -50,4 +50,4 @@ private:
             int *size);
 };
 
-#endif // SOUND_SYSTEM_AUDIO_EXTRACTOR_SYNCHRONOUS_FFMPEG_EXTRACTOR_H
+#endif // SOUND_SYSTEM_AUDIO_EXTRACTOR_FFMPEG_SYNCHRONOUS_EXTRACTOR_H

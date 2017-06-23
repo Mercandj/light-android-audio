@@ -9,7 +9,7 @@
 
 * OpenSL
 * MediaCodec
-* FFMPEG
+* FFmpeg
 
 ### Benchmark
 
@@ -19,7 +19,7 @@ Extract and decode from internal storage the tracks:
  * `app/src/main/assets/over_the_horizon.mp3`
  * `app/src/main/assets/over_the_horizon.wav`
 
-| Device \ Techno on AAC       | OpenSL 1 Native thread | MediaCodec 1 Native thread | FFMPEG 1 Java thread |
+| Device \ Techno on AAC       | OpenSL 1 Native thread | MediaCodec 1 Native thread | FFmpeg 1 Java thread |
 |------------------------------|------------------------|----------------------------|----------------------|
 | Pixel 8.0.0 op3              | 90.0s                  | 20.0s                      | 01.0s                |
 | Nexus 5X 8.0.0 op3           | 118 s                  | 42.0s                      | 04.2s                |  
@@ -28,7 +28,7 @@ Extract and decode from internal storage the tracks:
 | Nexus 5 5.1.1                | 05.7s                  | /                          | 03.2s                |
 | Wiko FEVER 6.0               | /                      | /                          | /                    |
 
-| Device \ Techno on MP3       | OpenSL 1 Native thread | MediaCodec 1 Native thread | FFMPEG 1 Java thread |
+| Device \ Techno on MP3       | OpenSL 1 Native thread | MediaCodec 1 Native thread | FFmpeg 1 Java thread |
 |------------------------------|------------------------|----------------------------|----------------------|
 | Pixel 8.0.0 op3              | 75.0s                  | 18.0s                      | 01.5s                |
 | Nexus 5X 8.0.0 op3           | 99.0s                  | 30.0s                      | 01.9s                |
@@ -37,7 +37,7 @@ Extract and decode from internal storage the tracks:
 | Nexus 5 5.1.1                | 04.5s                  | 07.5s                      | 06.0s                |
 | Wiko FEVER 6.0               | crash                  | 04.0s                      | 03.0s                |
 
-| Device \ Techno on WAV       | OpenSL 1 Native thread | MediaCodec 1 Native thread | FFMPEG 1 Java thread |
+| Device \ Techno on WAV       | OpenSL 1 Native thread | MediaCodec 1 Native thread | FFmpeg 1 Java thread |
 |------------------------------|------------------------|----------------------------|----------------------|
 | Pixel 8.0.0 op3              | 00.3s                  | 01.9s                      | 00.7s                |
 | Nexus 5X 8.0.0 op3           | 00.5s                  | 01.7s                      | 02.7s                |

@@ -1,6 +1,5 @@
 package com.mercandalli.android.sdk.audio;
 
-import android.content.res.AssetManager;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -186,12 +185,6 @@ class SoundSystemEntryPoint {
 
     /* package */
     native void native_stop();
-
-    /* package */
-    native void native_extract_and_play(String filePath);
-
-    /* package */
-    native void native_extract_from_assets_and_play(AssetManager assetManager, String filename);
 
     /* package */
     native short[] native_get_extracted_data();

@@ -1,6 +1,5 @@
 package com.mercandalli.android.sdk.audio;
 
-import android.content.res.AssetManager;
 import android.os.Looper;
 import android.support.annotation.MainThread;
 
@@ -105,14 +104,6 @@ public interface SoundSystem {
      * @return A shorrt array containing mono data of extracted audio file.
      */
     short[] getExtractedDataMono();
-
-    /**
-     * Extract and directly play the audio file without step of extract the whole file into RAM.
-     *
-     * @param assetManager An {@link AssetManager}.
-     * @param fileName     Name of the file to play which is inside Asset folder.
-     */
-    void playSong(final AssetManager assetManager, final String fileName);
 
     boolean addPlayingStatusListener(final PlayingStatusListener observer);
 

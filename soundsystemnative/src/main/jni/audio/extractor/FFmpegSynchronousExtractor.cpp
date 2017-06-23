@@ -23,9 +23,9 @@
  * In this example we use assert() for "impossible" error conditions,
  * and explicit handling and recovery for more likely error conditions.
  */
-#include "SynchronousFfmpegExtractor.h"
+#include "FFmpegSynchronousExtractor.h"
 
-SynchronousFfmpegExtractor::SynchronousFfmpegExtractor(
+FFmpegSynchronousExtractor::FFmpegSynchronousExtractor(
         SoundSystem *soundSystem,
         const unsigned short frameRate) :
         _frameRate(frameRate),
@@ -33,11 +33,11 @@ SynchronousFfmpegExtractor::SynchronousFfmpegExtractor(
 }
 
 // shut down the native media system
-SynchronousFfmpegExtractor::~SynchronousFfmpegExtractor() {
+FFmpegSynchronousExtractor::~FFmpegSynchronousExtractor() {
 
 }
 
-bool SynchronousFfmpegExtractor::extract(const char *path) {
+bool FFmpegSynchronousExtractor::extract(const char *path) {
 
     // ************************************************************************* //
     // ****************** PREPARE METADATA / AUDIO EXTRACTION ****************** //
@@ -91,7 +91,7 @@ bool SynchronousFfmpegExtractor::extract(const char *path) {
     return true;
 }
 
-void SynchronousFfmpegExtractor::extractMetadata(
+void FFmpegSynchronousExtractor::extractMetadata(
         const AVFormatContext *format,
         const AVCodecContext *codec) {
     // extract track information
@@ -108,7 +108,7 @@ void SynchronousFfmpegExtractor::extractMetadata(
     _soundSystem->setTotalNumberFrames(_file_total_frames);
 }
 
-int SynchronousFfmpegExtractor::decodeAudioFile(
+int FFmpegSynchronousExtractor::decodeAudioFile(
         AVFormatContext *format,
         AVStream *stream,
         AVCodecContext *codec,

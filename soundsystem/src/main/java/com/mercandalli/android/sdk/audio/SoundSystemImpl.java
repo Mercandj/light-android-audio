@@ -1,6 +1,5 @@
 package com.mercandalli.android.sdk.audio;
 
-import android.content.res.AssetManager;
 import android.os.Process;
 
 /**
@@ -180,16 +179,6 @@ class SoundSystemImpl implements SoundSystem {
      */
     public short[] getExtractedDataMono() {
         return soundSystemEntryPoint.native_get_extracted_data_mono();
-    }
-
-    /**
-     * Extract and directly play the audio file without step of extract the whole file into RAM.
-     *
-     * @param assetManager An {@link AssetManager}.
-     * @param fileName     Name of the file to play which is inside Asset folder.
-     */
-    public void playSong(final AssetManager assetManager, final String fileName) {
-        soundSystemEntryPoint.native_extract_from_assets_and_play(assetManager, fileName);
     }
 
     public boolean addPlayingStatusListener(PlayingStatusListener listener) {

@@ -2,8 +2,8 @@
 // Created by Frederic on 26/03/2017.
 //
 
-#ifndef MINI_SOUND_SYSTEM_SingleThreadMediaCodecExtractor_H
-#define MINI_SOUND_SYSTEM_SingleThreadMediaCodecExtractor_H
+#ifndef MINI_SOUND_SYSTEM_MediaCodecSingleThreadExtractor_H
+#define MINI_SOUND_SYSTEM_MediaCodecSingleThreadExtractor_H
 
 #include <jni.h>
 #include <stdio.h>
@@ -45,13 +45,13 @@ typedef struct {
 
 static workerdata data = {NULL, NULL, false, false, NULL, NULL, 0, 0, 0, false};
 
-class SingleThreadMediaCodecExtractor {
+class MediaCodecSingleThreadExtractor {
 
 public:
 
-    SingleThreadMediaCodecExtractor(SoundSystem *soundSystem, const unsigned short frameRate);
+    MediaCodecSingleThreadExtractor(SoundSystem *soundSystem, const unsigned short frameRate);
 
-    ~SingleThreadMediaCodecExtractor();
+    ~MediaCodecSingleThreadExtractor();
 
     bool extract(const char *filename);
 
@@ -70,4 +70,4 @@ private:
     static void *doExtraction(void*);
 };
 
-#endif //MINI_SOUND_SYSTEM_SingleThreadMediaCodecExtractor_H
+#endif //MINI_SOUND_SYSTEM_MediaCodecSingleThreadExtractor_H

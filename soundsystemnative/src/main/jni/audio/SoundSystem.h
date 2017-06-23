@@ -51,8 +51,6 @@ public:
 
     void extractMusic(SLDataLocator_URI *fileLoc);
 
-    void extractAndPlayDirectly(void *sourceFile);
-
     void initAudioPlayer();
 
     void sendSoundBufferExtract();

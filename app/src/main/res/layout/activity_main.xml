@@ -4,6 +4,7 @@
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    tools:background="#EEEEEE"
     tools:context=".main.MainActivity">
 
     <android.support.v7.widget.Toolbar
@@ -23,51 +24,76 @@
         tools:text="Test" />
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="@dimen/activity_main_width_center_panel"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_margin="32dp"
         android:layout_marginTop="?android:attr/actionBarSize"
-        android:gravity="center"
-        android:orientation="vertical">
+        android:background="@android:color/white"
+        android:elevation="10dp"
+        android:orientation="vertical"
+        android:padding="8dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="6dp"
+            android:layout_marginStart="6dp"
+            android:text="Extract and Decode with:" />
 
         <Button
             android:id="@+id/btn_extract_file_opensl_native_thread"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="Extract Decode\nOPENSL 1 Native thread" />
+            android:text="OpenSL 1 Native thread"
+            android:textAllCaps="false" />
 
         <Button
             android:id="@+id/btn_extract_file_mediacodec_native_thread"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="Extract Decode\nMEDIACODEC 1 Native thread" />
+            android:text="MediaCodec 1 Native thread"
+            android:textAllCaps="false" />
 
         <Button
             android:id="@+id/btn_extract_file_ffmpeg_java_thread"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="Extract Decode\nFFMPEG 1 Java thread" />
+            android:text="FFmpeg 1 Java thread"
+            android:textAllCaps="false" />
 
-        <LinearLayout
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_marginEnd="6dp"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="12dp"
+            android:text="Controls:" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
 
             <ToggleButton
                 android:id="@+id/toggle_play_pause"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
+                android:layout_weight="1"
                 android:textOff="Play"
                 android:textOn="Pause" />
 
             <Button
                 android:id="@+id/btn_stop"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
+                android:layout_weight="1"
                 android:text="Stop" />
 
         </LinearLayout>
