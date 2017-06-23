@@ -41,9 +41,9 @@ typedef struct {
     unsigned short numberChannel;
     int format;
 
-} workerdata;
+} MediaCodecWorkerData;
 
-static workerdata data = {NULL, NULL, false, false, NULL, NULL, 0, 0, 0, false};
+static MediaCodecWorkerData mediaCodecWorkerData = {NULL, NULL, false, false, NULL, NULL, 0, 0, 0, false};
 
 class MediaCodecSingleThreadExtractor {
 

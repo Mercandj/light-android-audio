@@ -65,6 +65,14 @@
             android:text="FFmpeg 1 Java thread"
             android:textAllCaps="false" />
 
+        <Button
+            android:id="@+id/btn_extract_file_ffmpeg_native_thread"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="FFmpeg 1 Native thread"
+            android:textAllCaps="false" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

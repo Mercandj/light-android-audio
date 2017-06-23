@@ -40,7 +40,8 @@ public class MainActivity extends AppCompatActivity {
             ACTION_NO_ACTION,
             ACTION_LOAD_FILE_OPEN_SL,
             ACTION_LOAD_FILE_MEDIA_CODEC,
-            ACTION_LOAD_FILE_FFMPEG_JAVA_THREAD})
+            ACTION_LOAD_FILE_FFMPEG_JAVA_THREAD,
+            ACTION_LOAD_FILE_FFMPEG_NATIVE_THREAD})
     @interface Action {
     }
 
@@ -48,12 +49,14 @@ public class MainActivity extends AppCompatActivity {
     private static final String ACTION_LOAD_FILE_OPEN_SL = "ACTION_LOAD_FILE_OPEN_SL";
     private static final String ACTION_LOAD_FILE_MEDIA_CODEC = "ACTION_LOAD_FILE_MEDIA_CODEC";
     private static final String ACTION_LOAD_FILE_FFMPEG_JAVA_THREAD = "ACTION_LOAD_FILE_FFMPEG_JAVA_THREAD";
+    private static final String ACTION_LOAD_FILE_FFMPEG_NATIVE_THREAD = "ACTION_LOAD_FILE_FFMPEG_NATIVE_THREAD";
 
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
 
     private Button toggleStop;
     private Button btnExtractFileMediaCodecNativeThread;
     private Button btnExtractFfmpegJavaThread;
+    private Button btnExtractFfmpegNativeThread;
     private Button btnExtractFileOpenSlNativeThread;
     private ToggleButton togglePlayPause;
 
@@ -118,11 +121,14 @@ public class MainActivity extends AppCompatActivity {
                 case ACTION_LOAD_FILE_OPEN_SL:
                     soundSystem.loadFileOpenSl(path);
                     break;
-                case ACTION_LOAD_FILE_FFMPEG_JAVA_THREAD:
-                    soundSystem.loadFileFFMPEGJavaThread(path);
-                    break;
                 case ACTION_LOAD_FILE_MEDIA_CODEC:
                     soundSystem.loadFileMediaCodec(path);
+                    break;
+                case ACTION_LOAD_FILE_FFMPEG_JAVA_THREAD:
+                    soundSystem.loadFileFFmpegJavaThread(path);
+                    break;
+                case ACTION_LOAD_FILE_FFMPEG_NATIVE_THREAD:
+                    soundSystem.loadFileFFmpegNativeThread(path);
                     break;
                 case ACTION_NO_ACTION:
                     break;
@@ -137,6 +143,7 @@ public class MainActivity extends AppCompatActivity {
         btnExtractFileOpenSlNativeThread = (Button) findViewById(R.id.btn_extract_file_opensl_native_thread);
         btnExtractFileMediaCodecNativeThread = (Button) findViewById(R.id.btn_extract_file_mediacodec_native_thread);
         btnExtractFfmpegJavaThread = (Button) findViewById(R.id.btn_extract_file_ffmpeg_java_thread);
+        btnExtractFfmpegNativeThread = (Button) findViewById(R.id.btn_extract_file_ffmpeg_native_thread);
         togglePlayPause = (ToggleButton) findViewById(R.id.toggle_play_pause);
         toggleStop = (Button) findViewById(R.id.btn_stop);
     }
@@ -145,6 +152,7 @@ public class MainActivity extends AppCompatActivity {
         btnExtractFileOpenSlNativeThread.setOnClickListener(onClickListener);
         btnExtractFileMediaCodecNativeThread.setOnClickListener(onClickListener);
         btnExtractFfmpegJavaThread.setOnClickListener(onClickListener);
+        btnExtractFfmpegNativeThread.setOnClickListener(onClickListener);
         togglePlayPause.setOnCheckedChangeListener(mOnCheckedChangeListener);
         toggleStop.setOnClickListener(onClickListener);
         if (!fileManager.isInitialized()) {
@@ -153,6 +161,7 @@ public class MainActivity extends AppCompatActivity {
             btnExtractFileOpenSlNativeThread.setEnabled(false);
             btnExtractFileMediaCodecNativeThread.setEnabled(false);
             btnExtractFfmpegJavaThread.setEnabled(false);
+            btnExtractFfmpegNativeThread.setEnabled(false);
         } else {
             syncButtonsWithSoundSystem();
         }
@@ -165,10 +174,12 @@ public class MainActivity extends AppCompatActivity {
             btnExtractFileOpenSlNativeThread.setEnabled(false);
             btnExtractFileMediaCodecNativeThread.setEnabled(false);
             btnExtractFfmpegJavaThread.setEnabled(false);
+            btnExtractFfmpegNativeThread.setEnabled(false);
         } else {
             btnExtractFileOpenSlNativeThread.setEnabled(true);
             btnExtractFileMediaCodecNativeThread.setEnabled(true);
             btnExtractFfmpegJavaThread.setEnabled(true);
+            btnExtractFfmpegNativeThread.setEnabled(true);
             togglePlayPause.setEnabled(false);
             toggleStop.setEnabled(false);
         }
@@ -223,6 +234,7 @@ public class MainActivity extends AppCompatActivity {
             btnExtractFileOpenSlNativeThread.setEnabled(false);
             btnExtractFileMediaCodecNativeThread.setEnabled(false);
             btnExtractFfmpegJavaThread.setEnabled(false);
+            btnExtractFfmpegNativeThread.setEnabled(false);
             log("");
             log("---------------------------------");
             log("[Extraction] Started");
@@ -270,12 +282,16 @@ public class MainActivity extends AppCompatActivity {
                     loadTrackOpenSlOrAskPermission();
                     break;
 
-                case R.id.btn_extract_file_ffmpeg_java_thread:
-                    loadTrackFfmpefJavaThreadOrAskPermission();
-                    break;
-
                 case R.id.btn_extract_file_mediacodec_native_thread:
                     loadTrackMediaCodecOrAskPermission();
+                    break;
+
+                case R.id.btn_extract_file_ffmpeg_java_thread:
+                    loadTrackFFmpegJavaThreadOrAskPermission();
+                    break;
+
+                case R.id.btn_extract_file_ffmpeg_native_thread:
+                    loadTrackFFmpegNativeThreadOrAskPermission();
                     break;
 
                 case R.id.btn_stop:
@@ -307,12 +323,23 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void loadTrackFfmpefJavaThreadOrAskPermission() {
+    private void loadTrackFFmpegJavaThreadOrAskPermission() {
         action = ACTION_LOAD_FILE_FFMPEG_JAVA_THREAD;
         int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
         if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
             String path = fileManager.getFile().getAbsolutePath();
-            soundSystem.loadFileFFMPEGJavaThread(path);
+            soundSystem.loadFileFFmpegJavaThread(path);
+        } else {
+            askForReadExternalStoragePermission();
+        }
+    }
+
+    private void loadTrackFFmpegNativeThreadOrAskPermission() {
+        action = ACTION_LOAD_FILE_FFMPEG_NATIVE_THREAD;
+        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+            String path = fileManager.getFile().getAbsolutePath();
+            soundSystem.loadFileFFmpegNativeThread(path);
         } else {
             askForReadExternalStoragePermission();
         }

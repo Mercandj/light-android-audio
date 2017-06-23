@@ -169,7 +169,10 @@ class SoundSystemEntryPoint {
     native void native_load_file_media_codec(String filePath);
 
     /* package */
-    native void native_load_file_synchronous_ffmpeg(String filePath);
+    native void native_load_file_ffmpeg_synchronous(String filePath);
+
+    /* package */
+    native void native_load_file_ffmpeg(String filePath);
 
     /* package */
     native void native_release_soundsystem();

@@ -15,6 +15,9 @@ void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1init_1
     _ffmpegSynchronousExtractor = new FFmpegSynchronousExtractor(
             _soundSystem,
             sample_rate);
+    _ffmpegSingleThreadExtractor = new FFmpegSingleThreadExtractor(
+            _soundSystem,
+            sample_rate);
 
 #ifdef AAUDIO
     _aaudio_manager = new AAudioManager();
@@ -55,8 +58,20 @@ void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1load_1
     _soundSystem->initAudioPlayer();
 }
 
+void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1load_1file_1ffmpeg(
+        JNIEnv *env,
+        jclass jclass1,
+        jstring filePath) {
+    if (!isSoundSystemInit()) {
+        return;
+    }
+    const char *urf8FileURLString = env->GetStringUTFChars(filePath, NULL);
+    _soundSystem->initAudioPlayer();
+    _ffmpegSingleThreadExtractor->extract(urf8FileURLString);
+}
+
 void
-Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1load_1file_1synchronous_1ffmpeg(
+Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1load_1file_1ffmpeg_1synchronous(
         JNIEnv *env,
         jclass jclass1,
         jstring filePath) {

@@ -114,18 +114,28 @@ class SoundSystemImpl implements SoundSystem {
      *
      * @param filePath Path of the file on the hard disk.
      */
-    public void loadFileFFMPEGJavaThread(final String filePath) {
+    public void loadFileFFmpegJavaThread(final String filePath) {
         Preconditions.checkNotNull(filePath);
         final Thread thread = new Thread("extractor-thread") {
             @Override
             public void run() {
                 super.run();
                 Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO);
-                soundSystemEntryPoint.native_load_file_synchronous_ffmpeg(filePath);
+                soundSystemEntryPoint.native_load_file_ffmpeg_synchronous(filePath);
             }
         };
         thread.setPriority(Thread.MAX_PRIORITY);
         thread.start();
+    }
+
+    /**
+     * Load track file into the RAM.
+     *
+     * @param filePath Path of the file on the hard disk.
+     */
+    @Override
+    public void loadFileFFmpegNativeThread(final String filePath) {
+        soundSystemEntryPoint.native_load_file_ffmpeg(filePath);
     }
 
     /**

@@ -8,6 +8,7 @@
 #include <android/asset_manager_jni.h>
 #include <assert.h>
 #include <audio/extractor/FFmpegSynchronousExtractor.h>
+#include <audio/extractor/FFmpegSingleThreadExtractor.h>
 
 #include "audio/extractor/MediaCodecSingleThreadExtractor.h"
 
@@ -27,6 +28,7 @@ static MediaCodecSingleThreadExtractor *_mediaCodecSingleThreadExtractor;
 #endif
 
 static FFmpegSynchronousExtractor *_ffmpegSynchronousExtractor;
+static FFmpegSingleThreadExtractor *_ffmpegSingleThreadExtractor;
 
 #ifdef AAUDIO
 static AAudioManager *_aaudio_manager;
@@ -50,7 +52,12 @@ void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1load_1
         jclass jclass1,
         jstring filePath);
 
-void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1load_1file_1synchronous_1ffmpeg(
+void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1load_1file_1ffmpeg(
+        JNIEnv *env,
+        jclass jclass1,
+        jstring filePath);
+
+void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1load_1file_1ffmpeg_1synchronous(
         JNIEnv *env,
         jclass jclass1,
         jstring filePath);
