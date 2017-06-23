@@ -25,11 +25,16 @@ public:
 
     ~SynchronousFfmpegExtractor();
 
-    bool extract(const char *filename);
+    bool extract(const char *path);
 
-    void extractMetadata(AMediaFormat *format);
+    void extractMetadata(AVFormatContext *format, AVCodecContext *codec);
 
-    int decode_audio_file(const char *path, short **data, int *size);
+    int decode_audio_file(
+            AVFormatContext *format,
+            AVStream *stream,
+            AVCodecContext *codec,
+            short **data,
+            int *size);
 
 private:
 

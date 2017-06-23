@@ -37,51 +37,11 @@ SynchronousFfmpegExtractor::~SynchronousFfmpegExtractor() {
 
 }
 
-bool SynchronousFfmpegExtractor::extract(const char *filename) {
-    AMediaExtractor *aMediaExtractor = AMediaExtractor_new();
-    media_status_t err = AMediaExtractor_setDataSource(aMediaExtractor, filename);
+bool SynchronousFfmpegExtractor::extract(const char *path) {
 
-    if (err != AMEDIA_OK) {
-        LOGV("setDataSource error: %d", err);
-        return false;
-    }
+    // ************************************************************************* //
+    // ****************** PREPARE METADATA / AUDIO EXTRACTION ****************** //
 
-    int numtracks = AMediaExtractor_getTrackCount(aMediaExtractor);
-    for (int trackIndex = 0; trackIndex < numtracks; trackIndex++) {
-        AMediaFormat *format = AMediaExtractor_getTrackFormat(aMediaExtractor, trackIndex);
-        const char *s = AMediaFormat_toString(format);
-        LOGV("track %d format: %s", trackIndex, s);
-        const char *mime;
-        if (!AMediaFormat_getString(format, AMEDIAFORMAT_KEY_MIME, &mime)) {
-            // no mime type
-            return false;
-        } else if (strncmp(mime, "audio/", 6) == 0) {
-            extractMetadata(format);
-            _soundSystem->notifyExtractionStarted();
-            decode_audio_file(filename, &_extractedData, &_size);
-            _soundSystem->setExtractedData(_extractedData);
-        }
-        AMediaFormat_delete(format);
-    }
-    return true;
-}
-
-void SynchronousFfmpegExtractor::extractMetadata(AMediaFormat *format) {
-    // extract track information
-    AMediaFormat_getInt32(format, AMEDIAFORMAT_KEY_CHANNEL_COUNT, &_file_number_channels);
-    AMediaFormat_getInt64(format, AMEDIAFORMAT_KEY_DURATION, &_file_duration);
-    AMediaFormat_getInt32(format, AMEDIAFORMAT_KEY_SAMPLE_RATE, &_file_sample_rate);
-
-    // duration is in micro seconds
-    _file_total_frames = (unsigned int) (((double) _file_duration * (double) _frameRate /
-                                          1000000.0));
-
-    _extractedData = (short *) calloc(_file_total_frames * _file_number_channels, sizeof(short));
-    _soundSystem->setExtractedData(_extractedData);
-    _soundSystem->setTotalNumberFrames(_file_total_frames);
-}
-
-int SynchronousFfmpegExtractor::decode_audio_file(const char *path, short **data, int *size) {
     // initialize all muxers, demuxers and protocols for libavformat
     // (does nothing if called twice during the course of one program execution)
     av_register_all();
@@ -104,7 +64,7 @@ int SynchronousFfmpegExtractor::decode_audio_file(const char *path, short **data
     if (stream_index < 0) {
         avformat_close_input(&format);
         LOGD("Could not find any audio stream in the file.  Come on! I need data!\n");
-        return 165;
+        return -1;
     }
 
     if (stream_index == -1) {
@@ -120,6 +80,38 @@ int SynchronousFfmpegExtractor::decode_audio_file(const char *path, short **data
         return -1;
     }
     av_opt_set_int(codec, "refcounted_frames", 1, 0);
+
+    // ****************** PREPARE METADATA / AUDIO EXTRACTION ****************** //
+    // ************************************************************************* //
+
+    extractMetadata(format, codec);
+    _soundSystem->notifyExtractionStarted();
+    decode_audio_file(format, stream, codec, &_extractedData, &_size);
+    _soundSystem->setExtractedData(_extractedData);
+    return true;
+}
+
+void SynchronousFfmpegExtractor::extractMetadata(AVFormatContext *format, AVCodecContext *codec) {
+    // extract track information
+    _file_duration = format->duration;
+    _file_number_channels = codec->channels;
+    _file_sample_rate = codec->sample_rate;
+
+    // duration is in micro seconds
+    _file_total_frames = (unsigned int) (((double) _file_duration * (double) _frameRate /
+                                          1000000.0));
+
+    _extractedData = (short *) calloc(_file_total_frames * _file_number_channels, sizeof(short));
+    _soundSystem->setExtractedData(_extractedData);
+    _soundSystem->setTotalNumberFrames(_file_total_frames);
+}
+
+int SynchronousFfmpegExtractor::decode_audio_file(
+        AVFormatContext *format,
+        AVStream *stream,
+        AVCodecContext *codec,
+        short **data,
+        int *size) {
 
     // prepare resampler
     struct SwrContext *swr = swr_alloc();
