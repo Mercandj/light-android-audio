@@ -28,11 +28,11 @@ bool FFmpegSingleThreadExtractor::extract(const char *path) {
     AVFormatContext *format = avformat_alloc_context();
     if (avformat_open_input(&format, path, NULL, NULL) != 0) {
         LOGD("Could not open file '%s'\n", path);
-        return -1;
+        return false;
     }
     if (avformat_find_stream_info(format, NULL) < 0) {
         LOGD("Could not retrieve stream info from file '%s'\n", path);
-        return -1;
+        return false;
     }
 
     // Find the index of the first audio stream
@@ -42,12 +42,12 @@ bool FFmpegSingleThreadExtractor::extract(const char *path) {
     if (stream_index < 0) {
         avformat_close_input(&format);
         LOGD("Could not find any audio stream in the file.  Come on! I need data!\n");
-        return -1;
+        return false;
     }
 
     if (stream_index == -1) {
         LOGD("Could not retrieve audio stream from file '%s'\n", path);
-        return -1;
+        return false;
     }
     AVStream *stream = format->streams[stream_index];
 
@@ -55,7 +55,7 @@ bool FFmpegSingleThreadExtractor::extract(const char *path) {
     AVCodecContext *codec = stream->codec;
     if (avcodec_open2(codec, cdc/*avcodec_find_decoder(codec->codec_id)*/, NULL) < 0) {
         LOGD("Failed to open decoder for stream #%u in file '%s'\n", stream_index, path);
-        return -1;
+        return false;
     }
     av_opt_set_int(codec, "refcounted_frames", 1, 0);
 
@@ -64,8 +64,6 @@ bool FFmpegSingleThreadExtractor::extract(const char *path) {
 
     extractMetadata(format, codec);
     workerData.soundSystem->notifyExtractionStarted();
-    //decodeAudioFile(format, stream, codec, &_extractedData, &_size);
-
     workerData.format = format;
     workerData.stream = stream;
     workerData.codec = codec;
@@ -128,9 +126,6 @@ void *FFmpegSingleThreadExtractor::doExtraction(void *) {
         return NULL;
     }
 
-    // iterate through frames
-    //short **data = NULL;
-    //*size = 0;
     int size = 0;
 
     // https://stackoverflow.com/questions/20545767/decode-audio-from-memory-c

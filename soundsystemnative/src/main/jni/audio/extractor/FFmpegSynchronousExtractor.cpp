@@ -1,28 +1,4 @@
-/*
- * Copyright (C) 2014 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
-/* This is a JNI example where we use native methods to play video
- * using the native AMedia* APIs.
- * See the corresponding Java source file located at:
- *
- *   src/com/example/nativecodec/NativeMedia.java
- *
- * In this example we use assert() for "impossible" error conditions,
- * and explicit handling and recovery for more likely error conditions.
- */
 #include "FFmpegSynchronousExtractor.h"
 
 FFmpegSynchronousExtractor::FFmpegSynchronousExtractor(
@@ -50,11 +26,11 @@ bool FFmpegSynchronousExtractor::extract(const char *path) {
     AVFormatContext *format = avformat_alloc_context();
     if (avformat_open_input(&format, path, NULL, NULL) != 0) {
         LOGD("Could not open file '%s'\n", path);
-        return -1;
+        return false;
     }
     if (avformat_find_stream_info(format, NULL) < 0) {
         LOGD("Could not retrieve stream info from file '%s'\n", path);
-        return -1;
+        return false;
     }
 
     // Find the index of the first audio stream
@@ -64,12 +40,12 @@ bool FFmpegSynchronousExtractor::extract(const char *path) {
     if (stream_index < 0) {
         avformat_close_input(&format);
         LOGD("Could not find any audio stream in the file.  Come on! I need data!\n");
-        return -1;
+        return false;
     }
 
     if (stream_index == -1) {
         LOGD("Could not retrieve audio stream from file '%s'\n", path);
-        return -1;
+        return false;
     }
     AVStream *stream = format->streams[stream_index];
 
@@ -77,7 +53,7 @@ bool FFmpegSynchronousExtractor::extract(const char *path) {
     AVCodecContext *codec = stream->codec;
     if (avcodec_open2(codec, cdc/*avcodec_find_decoder(codec->codec_id)*/, NULL) < 0) {
         LOGD("Failed to open decoder for stream #%u in file '%s'\n", stream_index, path);
-        return -1;
+        return false;
     }
     av_opt_set_int(codec, "refcounted_frames", 1, 0);
 
