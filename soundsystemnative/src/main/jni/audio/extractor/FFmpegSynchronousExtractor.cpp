@@ -177,7 +177,7 @@ int FFmpegSynchronousExtractor::decodeAudioFile(
 
         // You MUST call av_free_packet() after each call to av_read_frame()
         // or you will leak so much memory on a large file you will need a memory-plumber!
-        // av_packet_unref(&packet);
+        av_packet_unref(&packet);
     }
     /*
     // Some codecs will cause frames to be buffered in the decoding process.

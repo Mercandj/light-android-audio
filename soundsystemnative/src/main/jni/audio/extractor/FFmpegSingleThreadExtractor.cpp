@@ -53,7 +53,7 @@ bool FFmpegSingleThreadExtractor::extract(const char *path) {
 
     // find & open codec
     AVCodecContext *codec = stream->codec;
-    if (avcodec_open2(codec, avcodec_find_decoder(codec->codec_id), NULL) < 0) {
+    if (avcodec_open2(codec, cdc/*avcodec_find_decoder(codec->codec_id)*/, NULL) < 0) {
         LOGD("Failed to open decoder for stream #%u in file '%s'\n", stream_index, path);
         return false;
     }
