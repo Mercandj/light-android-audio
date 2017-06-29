@@ -53,7 +53,7 @@ bool FFmpegSingleThreadExtractor::extract(const char *path) {
 
     // find & open codec
     AVCodecContext *codec = stream->codec;
-    if (avcodec_open2(codec, cdc/*avcodec_find_decoder(codec->codec_id)*/, NULL) < 0) {
+    if (avcodec_open2(codec, avcodec_find_decoder(codec->codec_id), NULL) < 0) {
         LOGD("Failed to open decoder for stream #%u in file '%s'\n", stream_index, path);
         return false;
     }
@@ -114,6 +114,8 @@ void *FFmpegSingleThreadExtractor::doExtraction(void *) {
     assert(swr_init(swr) == 0);
     if (!swr_is_initialized(swr)) {
         LOGD("Resampler has not been properly initialized\n");
+        d->soundSystem->setIsLoaded(false);
+        d->soundSystem->notifyExtractionEnded();
         return NULL;
     }
 
@@ -123,6 +125,8 @@ void *FFmpegSingleThreadExtractor::doExtraction(void *) {
     AVFrame *frame = av_frame_alloc();
     if (!frame) {
         LOGD("Error allocating the frame\n");
+        d->soundSystem->setIsLoaded(false);
+        d->soundSystem->notifyExtractionEnded();
         return NULL;
     }
 
@@ -137,52 +141,54 @@ void *FFmpegSingleThreadExtractor::doExtraction(void *) {
 
             // Audio packets can have multiple audio frames in a single packet
             while (decodingPacket.size > 0) {
+                avcodec_send_packet(d->codec, &packet);
+                avcodec_receive_frame(d->codec, frame);
 
-                // Try to decode the packet into a frame(s)
-                // Some frames rely on multiple packets, so we have to make sure the frame is finished
-                // before utilising it
-                int gotFrame = 0;
-                int result = avcodec_decode_audio4(d->codec, frame, &gotFrame, &decodingPacket);
+                // ***************************************************** //
+                // ****************** RESAMPLE FRAMES ****************** //
+                // see https://github.com/fscz/FFmpeg-Android/blob/master/jni/audiodecoder.c#L120
+                int64_t dst_nb_samples = av_rescale_rnd(
+                        swr_get_delay(swr, frame->sample_rate) + frame->nb_samples,
+                        d->_device_frame_rate,// dst_sample_rate
+                        frame->sample_rate,
+                        AV_ROUND_UP);
 
-                if (result >= 0 && gotFrame) {
-                    decodingPacket.size -= result;
-
-                    // ***************************************************** //
-                    // ****************** RESAMPLE FRAMES ****************** //
-                    short *buffer;
-                    av_samples_alloc(
-                            (uint8_t **) &buffer,
-                            NULL,
-                            2,
-                            frame->nb_samples,
-                            AV_SAMPLE_FMT_S16,
-                            0);
-                    int frame_count = swr_convert(
-                            swr,
-                            (uint8_t **) &buffer,
-                            frame->nb_samples,
-                            (const uint8_t **) frame->data,
-                            frame->nb_samples);
-                    // append resampled frames to data
-                    d->extractedData = (short *) realloc(
-                            d->extractedData,
-                            (size + frame->nb_samples) * sizeof(short) * 2);
-                    memcpy(d->extractedData + size,
-                           buffer,
-                           frame_count * sizeof(short) * 2);
-                    size += frame_count * 2;
-                    // ****************** RESAMPLE FRAMES ****************** //
-                    // ***************************************************** //
-                } else {
-                    decodingPacket.size = 0;
-                    decodingPacket.data = nullptr;
-                }
+                short *buffer;
+                av_samples_alloc(
+                        (uint8_t **) &buffer,
+                        NULL,
+                        2,
+                        dst_nb_samples,
+                        AV_SAMPLE_FMT_S16,
+                        0);
+                int frame_count = swr_convert(
+                        swr,
+                        (uint8_t **) &buffer,
+                        dst_nb_samples,
+                        (const uint8_t **) frame->data,
+                        frame->nb_samples);
+                // append resampled frames to data
+                d->extractedData = (short *) realloc(
+                        d->extractedData,
+                        (size + frame->nb_samples) * sizeof(short) * 2);
+                memcpy(d->extractedData + size,
+                       buffer,
+                       frame_count * sizeof(short) * 2);
+                size += frame_count * 2;
+                // ****************** RESAMPLE FRAMES ****************** //
+                // ***************************************************** //
+                decodingPacket.size = 0;
+                decodingPacket.data = nullptr;
+                av_frame_unref(frame);
+                av_packet_unref(&packet);
+                av_free(buffer);
+                buffer = NULL;
             }
         }
 
         // You MUST call av_free_packet() after each call to av_read_frame()
         // or you will leak so much memory on a large file you will need a memory-plumber!
-        // av_packet_unref(&packet);
+        av_packet_unref(&packet);
     }
     /*
     // Some codecs will cause frames to be buffered in the decoding process.
