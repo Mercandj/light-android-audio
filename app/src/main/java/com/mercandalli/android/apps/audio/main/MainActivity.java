@@ -1,6 +1,7 @@
 package com.mercandalli.android.apps.audio.main;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.pm.PackageManager;
 import android.media.MediaCodecInfo;
@@ -32,8 +33,7 @@ import java.lang.annotation.RetentionPolicy;
  */
 public class MainActivity extends AppCompatActivity {
 
-    @FileManager.Format
-    private static final String FORMAT = FileManager.FORMAT_MP3;
+    private TextView logTextView;
 
     @Retention(RetentionPolicy.SOURCE)
     @StringDef({
@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
 
     private SoundSystem soundSystem;
     private FileManager fileManager;
-    private FileManager.OnLoadListener fileManagerInitializeListener;
+    private FileManager.OnInitListener fileManagerInitializeListener;
     private AudioFeaturesManager audioFeaturesManager;
 
     @Action
@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
         fileManagerInitializeListener = createFileManagerInitializeListener();
         audioFeaturesManager = AudioFeaturesManager.init(this);
         soundSystem = SoundSystem.Instance.getInstance();
-        fileManager = FileManager.Instance.getInstance(getAssets());
+        fileManager = FileManager.Instance.getInstance(this);
 
         findViews();
 
@@ -91,8 +91,8 @@ public class MainActivity extends AppCompatActivity {
                     audioFeaturesManager.getFramesPerBuffer());
         }
         if (!fileManager.isInitialized()) {
-            fileManager.registerOnLoadListener(fileManagerInitializeListener);
-            fileManager.load(getFilesDir().getAbsolutePath(), FORMAT);
+            fileManager.registerOnInitListener(fileManagerInitializeListener);
+            fileManager.initialize();
         }
 
         initUI();
@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
             detachListeners();
             soundSystem.release();
         }
-        fileManager.unregisterOnLoadListener(fileManagerInitializeListener);
+        fileManager.unregisterOnInitListener(fileManagerInitializeListener);
         super.onDestroy();
     }
 
@@ -146,6 +146,7 @@ public class MainActivity extends AppCompatActivity {
         btnExtractFfmpegNativeThread = (Button) findViewById(R.id.btn_extract_file_ffmpeg_native_thread);
         togglePlayPause = (ToggleButton) findViewById(R.id.toggle_play_pause);
         toggleStop = (Button) findViewById(R.id.btn_stop);
+        logTextView = (TextView) findViewById(R.id.tv_logs);
     }
 
     private void initUI() {
@@ -222,9 +223,9 @@ public class MainActivity extends AppCompatActivity {
         log("Available codecs : \n" + stringBuilder.toString());
     }
 
+    @SuppressLint("SetTextI18n")
     private void log(String message) {
-        final TextView textView = (TextView) findViewById(R.id.tv_logs);
-        textView.setText(message + "\n" + textView.getText().toString());
+        logTextView.setText(message + "\n" + logTextView.getText().toString());
     }
 
     private SoundSystem.ExtractionListener extractionObserver = new SoundSystem.ExtractionListener() {
@@ -364,10 +365,10 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    private FileManager.OnLoadListener createFileManagerInitializeListener() {
-        return new FileManager.OnLoadListener() {
+    private FileManager.OnInitListener createFileManagerInitializeListener() {
+        return new FileManager.OnInitListener() {
             @Override
-            public void onLoadEnded(@FileManager.Format String format) {
+            public void onInitEnded() {
                 syncButtonsWithSoundSystem();
             }
         };

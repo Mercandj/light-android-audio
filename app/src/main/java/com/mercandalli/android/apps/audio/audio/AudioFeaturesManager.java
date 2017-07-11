@@ -16,15 +16,15 @@ public class AudioFeaturesManager {
 
     private static AudioFeaturesManager sInstance;
 
-    public static AudioFeaturesManager init(@NonNull final Context context){
-        if(sInstance == null){
+    public static AudioFeaturesManager init(@NonNull final Context context) {
+        if (sInstance == null) {
             sInstance = new AudioFeaturesManager(context);
         }
         return sInstance;
     }
 
-    public static AudioFeaturesManager getInstance(){
-        if(sInstance == null){
+    public static AudioFeaturesManager getInstance() {
+        if (sInstance == null) {
             throw new IllegalStateException("AudioFeaturesManager#init(Context) must be call before getting instance of AudioFeaturesManager");
         }
         return sInstance;
@@ -35,7 +35,7 @@ public class AudioFeaturesManager {
     private int mSampleRate;
     private int mFramesPerBuffer;
 
-    private AudioFeaturesManager(@NonNull final Context context){
+    private AudioFeaturesManager(@NonNull final Context context) {
         getAudioInformation(context);
     }
 

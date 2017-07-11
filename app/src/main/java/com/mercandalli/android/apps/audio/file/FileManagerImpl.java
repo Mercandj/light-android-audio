@@ -21,42 +21,70 @@ import java.util.List;
     private static final String FILE_NAME_WAV = "over_the_horizon.wav";
 
     private String fileDir;
-    private final List<OnLoadListener> initializeListeners;
+    private final List<OnInitListener> initializeListeners;
     private final AssetManager assetManager;
     private boolean initialized;
-    private File file;
+    private File fileAAC;
+    private File fileMP3;
+    private File fileWAV;
+    @TrackFormat
+    private String trackFormat;
 
-    /* package */ FileManagerImpl(AssetManager assetManager) {
+    /* package */ FileManagerImpl(
+            String fileDir,
+            AssetManager assetManager) {
         this.initializeListeners = new ArrayList<>();
         this.assetManager = assetManager;
-    }
-
-    @Override
-    public void load(String fileDir, @Format String format) {
         this.fileDir = fileDir;
+        this.initialized = false;
+
+        trackFormat = FORMAT_MP3;
+    }
+
+    @Override
+    public void initialize() {
         // Should be async...
-        initialized = extractAsset(fileDir, format);
-        for (OnLoadListener listener : initializeListeners) {
-            listener.onLoadEnded(format);
+        initialized = extractAsset(fileDir, FORMAT_AAC);
+        initialized &= extractAsset(fileDir, FORMAT_MP3);
+        initialized &= extractAsset(fileDir, FORMAT_WAV);
+        if (!initialized) {
+            throw new IllegalStateException("Cannot copy files from assets.");
+        }
+        for (OnInitListener listener : initializeListeners) {
+            listener.onInitEnded();
         }
     }
 
     @Override
-    @SuppressWarnings("SimplifiableIfStatement")
     public boolean isInitialized() {
-        if (fileDir == null || file == null) {
-            return false;
-        }
         return initialized;
     }
 
     @Override
-    public File getFile() {
-        return file;
+    public String getTrackFormat() {
+        return trackFormat;
     }
 
     @Override
-    public void registerOnLoadListener(OnLoadListener listener) {
+    public void setTrackFormat(@TrackFormat String format) {
+        this.trackFormat = format;
+    }
+
+    @Override
+    public File getFile() {
+        switch (trackFormat) {
+            case FORMAT_AAC:
+                return fileAAC;
+            case FORMAT_WAV:
+                return fileWAV;
+            case FORMAT_MP3:
+            default:
+                return fileMP3;
+        }
+    }
+
+    @Override
+    public void registerOnInitListener(OnInitListener listener) {
         if (listener == null || initializeListeners.contains(listener)) {
             return;
         }
@@ -64,33 +92,30 @@ import java.util.List;
     }
 
     @Override
-    public void unregisterOnLoadListener(OnLoadListener listener) {
+    public void unregisterOnInitListener(OnInitListener listener) {
         initializeListeners.remove(listener);
     }
 
-    private boolean extractAsset(String outDir, @Format String format) {
+    private boolean extractAsset(String outDir, @TrackFormat String format) {
         InputStream in;
         OutputStream out;
+        File file;
         try {
             switch (format) {
                 case FORMAT_AAC:
                     in = assetManager.open(ASSET_FILE_NAME_AAC);
-                    file = new File(outDir, FILE_NAME_AAC);
-                    break;
-                case FORMAT_MP3:
-                    in = assetManager.open(ASSET_FILE_NAME_MP3);
-                    file = new File(outDir, FILE_NAME_MP3);
+                    file = fileAAC = new File(outDir, FILE_NAME_AAC);
                     break;
                 case FORMAT_WAV:
                     in = assetManager.open(ASSET_FILE_NAME_WAV);
-                    file = new File(outDir, FILE_NAME_WAV);
+                    file = fileWAV = new File(outDir, FILE_NAME_WAV);
                     break;
+                case FORMAT_MP3:
                 default:
                     in = assetManager.open(ASSET_FILE_NAME_MP3);
-                    file = new File(outDir, FILE_NAME_MP3);
+                    file = fileMP3 = new File(outDir, FILE_NAME_MP3);
                     break;
             }
-
             if (file.exists()) {
                 return true;
             }

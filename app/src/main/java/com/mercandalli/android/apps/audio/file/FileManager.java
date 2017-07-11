@@ -1,5 +1,6 @@
 package com.mercandalli.android.apps.audio.file;
 
+import android.content.Context;
 import android.content.res.AssetManager;
 import android.support.annotation.StringDef;
 
@@ -14,26 +15,31 @@ public interface FileManager {
             FORMAT_AAC,
             FORMAT_MP3,
             FORMAT_WAV})
-    @interface Format {
+    @interface TrackFormat {
     }
 
     String FORMAT_AAC = "FORMAT_AAC";
     String FORMAT_MP3 = "FORMAT_MP3";
     String FORMAT_WAV = "FORMAT_WAV";
 
-    void load(String fileDir, @Format String format);
+    void initialize();
 
     boolean isInitialized();
 
+    @TrackFormat
+    String getTrackFormat();
+
+    void setTrackFormat(@TrackFormat String format);
+
     File getFile();
 
-    void registerOnLoadListener(OnLoadListener listener);
+    void registerOnInitListener(OnInitListener listener);
 
-    void unregisterOnLoadListener(OnLoadListener listener);
+    void unregisterOnInitListener(OnInitListener listener);
 
-    interface OnLoadListener {
+    interface OnInitListener {
 
-        void onLoadEnded(@Format String format);
+        void onInitEnded();
     }
 
     class Instance {
@@ -46,12 +52,15 @@ public interface FileManager {
          *
          * @return Get the instance of this class.
          */
-        public static FileManager getInstance(AssetManager assetManager) {
+        public static FileManager getInstance(Context context) {
             if (sInstance == null) {
-                sInstance = new FileManagerImpl(assetManager);
+                AssetManager assetManager = context.getAssets();
+                String folderPath = context.getFilesDir().getAbsolutePath();
+                sInstance = new FileManagerImpl(
+                        folderPath,
+                        assetManager);
             }
             return sInstance;
         }
     }
-
 }
