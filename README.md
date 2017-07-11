@@ -2,6 +2,12 @@
 
 ----
 
+<p align="center">
+	<a margin="20px 0" href="https://github.com/Mercandj/light-android-audio/tree/master/soundsystemnative/src/main/jni">
+		<img  src="https://raw.github.com/Mercandj/light-android-audio/master/screenshot.png" width="560" />
+	</a>
+</p>
+
 ## Extract + Decode
 
 
