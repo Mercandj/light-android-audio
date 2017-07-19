@@ -35,7 +35,7 @@ Extract and decode from internal storage the tracks:
 | WAV             | 0.57s                  | 0.60s                     |
 
 
-#### Benchmark deprecated (old [libffmpeg.so](https://github.com/tuarua/FFmpeg-for-Android-Prebuilt) filed and without app -OS release opti)
+#### Benchmark deprecated (old [libffmpeg.so](https://github.com/tuarua/FFmpeg-for-Android-Prebuilt) files)
 
 | Device \ Techno on AAC       | OpenSL 1 Native thread | MediaCodec 1 Native thread | FFmpeg 1 Java prio thread |
 |------------------------------|------------------------|----------------------------|---------------------------|
