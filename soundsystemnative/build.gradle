@@ -40,7 +40,10 @@ model {
                     srcDir "src/main/jni"
                 }
                 dependencies {
-                    library "prebuiltFfmpeg" linkage "shared"
+                    library "libavcodec" linkage "shared"
+                    library "libavformat" linkage "shared"
+                    library "libavutil" linkage "shared"
+                    library "libswresample" linkage "shared"
                 }
             }
         }
@@ -48,12 +51,42 @@ model {
 
     repositories {
         libs(PrebuiltLibraries) {
-            prebuiltFfmpeg {
+            libavcodec {
                 headers.srcDir "../prebuilt/ffmpeg/include/armeabi-v7a"
                 binaries.withType(SharedLibraryBinary) {
                     sharedLibraryFile = file("../prebuilt/ffmpeg/lib" +
                             "/${targetPlatform.getName()}" +
-                            "/libffmpeg.so")
+                            "/libavcodec.so")
+                }
+            }
+        }
+        libs(PrebuiltLibraries) {
+            libavformat {
+                headers.srcDir "../prebuilt/ffmpeg/include/armeabi-v7a"
+                binaries.withType(SharedLibraryBinary) {
+                    sharedLibraryFile = file("../prebuilt/ffmpeg/lib" +
+                            "/${targetPlatform.getName()}" +
+                            "/libavformat.so")
+                }
+            }
+        }
+        libs(PrebuiltLibraries) {
+            libavutil {
+                headers.srcDir "../prebuilt/ffmpeg/include/armeabi-v7a"
+                binaries.withType(SharedLibraryBinary) {
+                    sharedLibraryFile = file("../prebuilt/ffmpeg/lib" +
+                            "/${targetPlatform.getName()}" +
+                            "/libavutil.so")
+                }
+            }
+        }
+        libs(PrebuiltLibraries) {
+            libswresample {
+                headers.srcDir "../prebuilt/ffmpeg/include/armeabi-v7a"
+                binaries.withType(SharedLibraryBinary) {
+                    sharedLibraryFile = file("../prebuilt/ffmpeg/lib" +
+                            "/${targetPlatform.getName()}" +
+                            "/libswresample.so")
                 }
             }
         }

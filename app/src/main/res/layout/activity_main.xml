@@ -20,58 +20,80 @@
         android:layout_marginTop="?android:attr/actionBarSize"
         android:padding="16dp"
         android:textColor="#999999"
-        android:textSize="12sp"
+        android:textSize="10sp"
+        tools:ignore="SmallSp"
         tools:text="Test" />
 
     <LinearLayout
         android:layout_width="@dimen/activity_main_width_center_panel"
         android:layout_height="wrap_content"
         android:layout_gravity="end|bottom"
-        android:layout_margin="32dp"
+        android:layout_margin="24dp"
         android:layout_marginTop="?android:attr/actionBarSize"
         android:background="@android:color/white"
-        android:elevation="10dp"
+        android:elevation="6dp"
         android:orientation="vertical"
-        android:padding="8dp">
+        android:padding="10dp">
+
+        <Spinner
+            android:id="@+id/activity_main_file_spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:entries="@array/activity_main_file_spinner_arrays"
+            android:prompt="@string/activity_main_file_spinner_prompt" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="6dp"
             android:layout_marginStart="6dp"
-            android:text="Extract and Decode with:" />
+            android:text="Extract and Decode with:"
+            android:textSize="11sp"
+            tools:ignore="SmallSp" />
 
         <Button
             android:id="@+id/btn_extract_file_opensl_native_thread"
+            style="?android:attr/buttonStyleSmall"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:text="OpenSL 1 Native thread"
-            android:textAllCaps="false" />
+            android:textAllCaps="false"
+            android:textSize="11sp"
+            tools:ignore="SmallSp" />
 
         <Button
             android:id="@+id/btn_extract_file_mediacodec_native_thread"
+            style="?android:attr/buttonStyleSmall"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:text="MediaCodec 1 Native thread"
-            android:textAllCaps="false" />
-
-        <Button
-            android:id="@+id/btn_extract_file_ffmpeg_java_thread"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="FFmpeg 1 Java thread"
-            android:textAllCaps="false" />
+            android:textAllCaps="false"
+            android:textSize="12sp" />
 
         <Button
             android:id="@+id/btn_extract_file_ffmpeg_native_thread"
+            style="?android:attr/buttonStyleSmall"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:text="FFmpeg 1 Native thread"
-            android:textAllCaps="false" />
+            android:textAllCaps="false"
+            android:textSize="11sp"
+            tools:ignore="SmallSp" />
+
+        <Button
+            android:id="@+id/btn_extract_file_ffmpeg_java_thread"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="FFmpeg 1 Java prio thread"
+            android:textAllCaps="false"
+            android:textSize="11sp"
+            tools:ignore="SmallSp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -79,7 +101,9 @@
             android:layout_marginEnd="6dp"
             android:layout_marginStart="6dp"
             android:layout_marginTop="12dp"
-            android:text="Controls:" />
+            android:text="Controls:"
+            android:textSize="11sp"
+            tools:ignore="SmallSp" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -89,20 +113,26 @@
 
             <ToggleButton
                 android:id="@+id/toggle_play_pause"
+                style="?android:attr/buttonStyleSmall"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_weight="1"
                 android:textOff="Play"
-                android:textOn="Pause" />
+                android:textOn="Pause"
+                android:textSize="11sp"
+                tools:ignore="SmallSp" />
 
             <Button
                 android:id="@+id/btn_stop"
+                style="?android:attr/buttonStyleSmall"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_weight="1"
-                android:text="Stop" />
+                android:text="Stop"
+                android:textSize="11sp"
+                tools:ignore="SmallSp" />
 
         </LinearLayout>
 

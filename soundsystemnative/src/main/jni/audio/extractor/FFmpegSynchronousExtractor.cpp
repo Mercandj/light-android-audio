@@ -164,14 +164,11 @@ int FFmpegSynchronousExtractor::decodeAudioFile(
                        buffer,
                        frame_count * sizeof(short) * 2);
                 *size += frame_count * 2;
+                av_freep(&buffer);
                 // ****************** RESAMPLE FRAMES ****************** //
                 // ***************************************************** //
                 decodingPacket.size = 0;
                 decodingPacket.data = nullptr;
-                av_frame_unref(frame);
-                av_packet_unref(&packet);
-                av_free(buffer);
-                buffer = NULL;
             }
         }
 

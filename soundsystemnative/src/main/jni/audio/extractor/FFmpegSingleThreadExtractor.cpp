@@ -10,9 +10,7 @@ FFmpegSingleThreadExtractor::FFmpegSingleThreadExtractor(
 
 // shut down the native media system
 FFmpegSingleThreadExtractor::~FFmpegSingleThreadExtractor() {
-    WorkerData *d = &workerData;
-    d->sawInputEOS = true;
-    d->sawOutputEOS = true;
+
 }
 
 bool FFmpegSingleThreadExtractor::extract(const char *path) {
@@ -149,7 +147,7 @@ void *FFmpegSingleThreadExtractor::doExtraction(void *) {
                 // see https://github.com/fscz/FFmpeg-Android/blob/master/jni/audiodecoder.c#L120
                 int64_t dst_nb_samples = av_rescale_rnd(
                         swr_get_delay(swr, frame->sample_rate) + frame->nb_samples,
-                        d->_device_frame_rate,// dst_sample_rate
+                        d->_device_frame_rate, // dst_sample_rate
                         frame->sample_rate,
                         AV_ROUND_UP);
 
@@ -175,14 +173,11 @@ void *FFmpegSingleThreadExtractor::doExtraction(void *) {
                        buffer,
                        frame_count * sizeof(short) * 2);
                 size += frame_count * 2;
+                av_freep(&buffer);
                 // ****************** RESAMPLE FRAMES ****************** //
                 // ***************************************************** //
                 decodingPacket.size = 0;
                 decodingPacket.data = nullptr;
-                av_frame_unref(frame);
-                av_packet_unref(&packet);
-                av_free(buffer);
-                buffer = NULL;
             }
         }
 

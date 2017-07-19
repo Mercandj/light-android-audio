@@ -14,8 +14,10 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -32,8 +34,6 @@ import java.lang.annotation.RetentionPolicy;
  * Simple activity launching the sound system.
  */
 public class MainActivity extends AppCompatActivity {
-
-    private TextView logTextView;
 
     @Retention(RetentionPolicy.SOURCE)
     @StringDef({
@@ -59,6 +59,8 @@ public class MainActivity extends AppCompatActivity {
     private Button btnExtractFfmpegNativeThread;
     private Button btnExtractFileOpenSlNativeThread;
     private ToggleButton togglePlayPause;
+    private TextView logTextView;
+    private Spinner fileSpinner;
 
     private long extractionStartTimestamp;
     private long extractionDuration;
@@ -147,6 +149,7 @@ public class MainActivity extends AppCompatActivity {
         togglePlayPause = (ToggleButton) findViewById(R.id.toggle_play_pause);
         toggleStop = (Button) findViewById(R.id.btn_stop);
         logTextView = (TextView) findViewById(R.id.tv_logs);
+        fileSpinner = (Spinner) findViewById(R.id.activity_main_file_spinner);
     }
 
     private void initUI() {
@@ -166,6 +169,47 @@ public class MainActivity extends AppCompatActivity {
         } else {
             syncButtonsWithSoundSystem();
         }
+        fileSpinner.setSelection(trackFormatToSpinnerPosition());
+        fileSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                @FileManager.TrackFormat
+                String trackFormat = spinnerPositionToTrackFormat(position);
+                fileManager.setTrackFormat(trackFormat);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+    }
+
+    private int trackFormatToSpinnerPosition() {
+        @FileManager.TrackFormat
+        String trackFormat = fileManager.getTrackFormat();
+        switch (trackFormat) {
+            case FileManager.FORMAT_AAC:
+                return 0;
+            case FileManager.FORMAT_MP3:
+                return 1;
+            case FileManager.FORMAT_WAV:
+                return 2;
+        }
+        return 0;
+    }
+
+    @FileManager.TrackFormat
+    private String spinnerPositionToTrackFormat(int position) {
+        switch (position) {
+            case 0:
+                return FileManager.FORMAT_AAC;
+            case 1:
+                return FileManager.FORMAT_MP3;
+            case 2:
+                return FileManager.FORMAT_WAV;
+        }
+        return FileManager.FORMAT_AAC;
     }
 
     private void syncButtonsWithSoundSystem() {
@@ -253,6 +297,11 @@ public class MainActivity extends AppCompatActivity {
             log("---------------------------------");
             log("");
             action = ACTION_NO_ACTION;
+
+            btnExtractFileOpenSlNativeThread.setEnabled(true);
+            btnExtractFileMediaCodecNativeThread.setEnabled(true);
+            btnExtractFfmpegJavaThread.setEnabled(true);
+            btnExtractFfmpegNativeThread.setEnabled(true);
         }
     };
 
