@@ -8,63 +8,18 @@ import android.os.Process;
 /* package */
 class SoundSystemImpl implements SoundSystem {
 
-    @SuppressWarnings("unused")
-    private static final String TAG = "SoundSystem";
-
-    /**
-     * Load native library
-     */
     static {
+        // Load native library
         System.loadLibrary("soundsystem");
-        /*
-        try {
-            final String filename = Environment.getExternalStorageDirectory().getAbsolutePath() + "/printa/lib/arm64-v8a/libmylibrary.so";
-            File file = new File(filename);
-            File dst = new File("/data/data/com.mercandalli.android.apps.audio/libmylibrary.so");
-            copyFile(file, dst);
-            SecurityManager security = System.getSecurityManager();
-            if (security != null) {
-                security.checkLink(filename);
-            }
-            System.load(dst.getAbsolutePath());
-        } catch (UnsatisfiedLinkError e) {
-            Log.e("jm/debug", "SoundSystem UnsatisfiedLinkError", e);
-            System.loadLibrary("mylibrary");
-        } catch (IOException e) {
-            Log.e("jm/debug", "SoundSystem IOException", e);
-            System.loadLibrary("mylibrary");
-        }
-        System.loadLibrary("mylibrary");
-        */
     }
-
-    /*
-    private static boolean copyFile(File src, File dst) throws IOException {
-        if (src.getAbsolutePath().toString().equals(dst.getAbsolutePath().toString())) {
-
-            return true;
-
-        } else {
-            InputStream is = new FileInputStream(src);
-            OutputStream os = new FileOutputStream(dst);
-            byte[] buff = new byte[1024];
-            int len;
-            while ((len = is.read(buff)) > 0) {
-                os.write(buff, 0, len);
-            }
-            is.close();
-            os.close();
-        }
-        return true;
-    }
-    */
 
     private final SoundSystemEntryPoint soundSystemEntryPoint;
 
     /**
      * Private constructor.
      */
-    /* package */ SoundSystemImpl(SoundSystemEntryPoint soundSystemEntryPoint) {
+    /* package */
+    SoundSystemImpl(SoundSystemEntryPoint soundSystemEntryPoint) {
         this.soundSystemEntryPoint = soundSystemEntryPoint;
     }
 
