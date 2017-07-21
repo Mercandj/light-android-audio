@@ -14,11 +14,13 @@ import java.util.List;
 
     private static final String ASSET_FILE_NAME_AAC = "over_the_horizon.aac";
     private static final String ASSET_FILE_NAME_MP3 = "over_the_horizon.mp3";
+    private static final String ASSET_FILE_NAME_MP3_MONO = "over_the_horizon_mono_2.mp3";
     private static final String ASSET_FILE_NAME_OGG = "over_the_horizon.ogg";
     private static final String ASSET_FILE_NAME_WAV = "over_the_horizon.wav";
 
     private static final String FILE_NAME_AAC = "over_the_horizon.aac";
     private static final String FILE_NAME_MP3 = "over_the_horizon.mp3";
+    private static final String FILE_NAME_MP3_MONO = "over_the_horizon_mono_2.mp3";
     private static final String FILE_NAME_OGG = "over_the_horizon.ogg";
     private static final String FILE_NAME_WAV = "over_the_horizon.wav";
 
@@ -28,6 +30,7 @@ import java.util.List;
     private boolean initialized;
     private File fileAAC;
     private File fileMP3;
+    private File fileMp3Mono;
     private File fileOGG;
     private File fileWAV;
     @TrackFormat
@@ -49,6 +52,7 @@ import java.util.List;
         // Should be async...
         initialized = extractAsset(fileDir, FORMAT_AAC);
         initialized &= extractAsset(fileDir, FORMAT_MP3);
+        initialized &= extractAsset(fileDir, FORMAT_MP3_MONO);
         initialized &= extractAsset(fileDir, FORMAT_OGG);
         initialized &= extractAsset(fileDir, FORMAT_WAV);
         if (!initialized) {
@@ -79,6 +83,8 @@ import java.util.List;
         switch (trackFormat) {
             case FORMAT_AAC:
                 return fileAAC;
+            case FORMAT_MP3_MONO:
+                return fileMp3Mono;
             case FORMAT_OGG:
                 return fileOGG;
             case FORMAT_WAV:
@@ -111,6 +117,10 @@ import java.util.List;
                 case FORMAT_AAC:
                     in = assetManager.open(ASSET_FILE_NAME_AAC);
                     file = fileAAC = new File(outDir, FILE_NAME_AAC);
+                    break;
+                case FORMAT_MP3_MONO:
+                    in = assetManager.open(ASSET_FILE_NAME_MP3_MONO);
+                    file = fileMp3Mono = new File(outDir, FILE_NAME_MP3_MONO);
                     break;
                 case FORMAT_OGG:
                     in = assetManager.open(ASSET_FILE_NAME_OGG);

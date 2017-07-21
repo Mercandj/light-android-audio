@@ -6,6 +6,7 @@
     <string-array name="activity_main_file_spinner_arrays">
         <item>AAC over_the_horizon (internal str.)</item>
         <item>MP3 over_the_horizon (internal str.)</item>
+        <item>MP3 Mono over_the_horizon (internal str.)</item>
         <item>OGG over_the_horizon (internal str.)</item>
         <item>WAV over_the_horizon (internal str.)</item>
     </string-array>

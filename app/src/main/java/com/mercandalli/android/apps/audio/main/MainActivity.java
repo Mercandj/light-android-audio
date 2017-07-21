@@ -8,6 +8,7 @@ import android.media.MediaCodecInfo;
 import android.media.MediaCodecList;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.StringDef;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -27,8 +28,11 @@ import com.mercandalli.android.apps.audio.audio.AudioFeaturesManager;
 import com.mercandalli.android.apps.audio.file.FileManager;
 import com.mercandalli.android.sdk.audio.SoundSystem;
 
+import java.io.File;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Simple activity launching the sound system.
@@ -38,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     @Retention(RetentionPolicy.SOURCE)
     @StringDef({
             ACTION_NO_ACTION,
+            ACTION_LOAD_FILE_VIA_EXTRACTION_WRAPPER,
             ACTION_LOAD_FILE_OPEN_SL,
             ACTION_LOAD_FILE_MEDIA_CODEC,
             ACTION_LOAD_FILE_FFMPEG_JAVA_THREAD,
@@ -46,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private static final String ACTION_NO_ACTION = "ACTION_NO_ACTION";
+    private static final String ACTION_LOAD_FILE_VIA_EXTRACTION_WRAPPER = "ACTION_LOAD_FILE_VIA_EXTRACTION_WRAPPER";
     private static final String ACTION_LOAD_FILE_OPEN_SL = "ACTION_LOAD_FILE_OPEN_SL";
     private static final String ACTION_LOAD_FILE_MEDIA_CODEC = "ACTION_LOAD_FILE_MEDIA_CODEC";
     private static final String ACTION_LOAD_FILE_FFMPEG_JAVA_THREAD = "ACTION_LOAD_FILE_FFMPEG_JAVA_THREAD";
@@ -54,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
 
     private Button toggleStop;
+    private Button btnExtractFileViaExtractionWrapper;
     private Button btnExtractFileMediaCodecNativeThread;
     private Button btnExtractFfmpegJavaThread;
     private Button btnExtractFfmpegNativeThread;
@@ -120,6 +127,9 @@ public class MainActivity extends AppCompatActivity {
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             String path = fileManager.getFile().getAbsolutePath();
             switch (action) {
+                case ACTION_LOAD_FILE_VIA_EXTRACTION_WRAPPER:
+                    loadTrackViaExtractionWrapperAskPermission();
+                    break;
                 case ACTION_LOAD_FILE_OPEN_SL:
                     soundSystem.loadFileOpenSl(path);
                     break;
@@ -143,6 +153,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void findViews() {
         btnExtractFileOpenSlNativeThread = (Button) findViewById(R.id.btn_extract_file_opensl_native_thread);
+        btnExtractFileViaExtractionWrapper = (Button) findViewById(R.id.btn_extract_file_extraction_wrapper_thread);
         btnExtractFileMediaCodecNativeThread = (Button) findViewById(R.id.btn_extract_file_mediacodec_native_thread);
         btnExtractFfmpegJavaThread = (Button) findViewById(R.id.btn_extract_file_ffmpeg_java_thread);
         btnExtractFfmpegNativeThread = (Button) findViewById(R.id.btn_extract_file_ffmpeg_native_thread);
@@ -154,6 +165,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initUI() {
         btnExtractFileOpenSlNativeThread.setOnClickListener(onClickListener);
+        btnExtractFileViaExtractionWrapper.setOnClickListener(onClickListener);
         btnExtractFileMediaCodecNativeThread.setOnClickListener(onClickListener);
         btnExtractFfmpegJavaThread.setOnClickListener(onClickListener);
         btnExtractFfmpegNativeThread.setOnClickListener(onClickListener);
@@ -196,10 +208,12 @@ public class MainActivity extends AppCompatActivity {
                 return 0;
             case FileManager.FORMAT_MP3:
                 return 1;
-            case FileManager.FORMAT_OGG:
+            case FileManager.FORMAT_MP3_MONO:
                 return 2;
-            case FileManager.FORMAT_WAV:
+            case FileManager.FORMAT_OGG:
                 return 3;
+            case FileManager.FORMAT_WAV:
+                return 4;
         }
         return 0;
     }
@@ -212,8 +226,10 @@ public class MainActivity extends AppCompatActivity {
             case 1:
                 return FileManager.FORMAT_MP3;
             case 2:
-                return FileManager.FORMAT_OGG;
+                return FileManager.FORMAT_MP3_MONO;
             case 3:
+                return FileManager.FORMAT_OGG;
+            case 4:
                 return FileManager.FORMAT_WAV;
         }
         return FileManager.FORMAT_AAC;
@@ -335,6 +351,10 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
+                case R.id.btn_extract_file_extraction_wrapper_thread:
+                    loadTrackViaExtractionWrapperAskPermission();
+                    break;
+
                 case R.id.btn_extract_file_opensl_native_thread:
                     loadTrackOpenSlOrAskPermission();
                     break;
@@ -358,9 +378,33 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    private void loadTrackViaExtractionWrapperAskPermission() {
+        action = ACTION_LOAD_FILE_VIA_EXTRACTION_WRAPPER;
+        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
+            String folderPath = Environment.getExternalStorageDirectory() + "/pianomp3";
+            File directory = new File(folderPath);
+            if (!directory.exists()) {
+                log("No folder pianomp3 folderPath==" + folderPath);
+                return;
+            }
+            File[] files = directory.listFiles();
+            List<String> filePaths = new ArrayList<>();
+            for (File file : files) {
+                String absolutePath = file.getAbsolutePath();
+                if (absolutePath.toLowerCase().endsWith(".mp3")) {
+                    filePaths.add(absolutePath);
+                }
+            }
+            soundSystem.loadViaExtractionWrapper(filePaths.toArray(new String[filePaths.size()]));
+        } else {
+            askForReadExternalStoragePermission();
+        }
+    }
+
     private void loadTrackOpenSlOrAskPermission() {
         action = ACTION_LOAD_FILE_OPEN_SL;
-        final int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
         if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
             String path = fileManager.getFile().getAbsolutePath();
             soundSystem.loadFileOpenSl(path);
@@ -371,7 +415,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadTrackMediaCodecOrAskPermission() {
         action = ACTION_LOAD_FILE_MEDIA_CODEC;
-        final int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
         if (permissionCheck == PackageManager.PERMISSION_GRANTED) {
             String path = fileManager.getFile().getAbsolutePath();
             soundSystem.loadFileMediaCodec(path);

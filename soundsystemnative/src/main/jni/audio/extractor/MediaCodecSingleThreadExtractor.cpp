@@ -1,3 +1,4 @@
+#if __ANDROID_API__ >= 21
 
 #include <utils/time_utils.h>
 #include "MediaCodecSingleThreadExtractor.h"
@@ -72,6 +73,12 @@ bool MediaCodecSingleThreadExtractor::extract(const char *filename) {
             d->soundSystem->notifyExtractionStarted();
             d->extractionPosition = 0;
             d->numberChannel = (unsigned short) _file_number_channels;
+
+            AMediaFormat *formatOut = AMediaCodec_getOutputFormat(d->codec);
+
+            LOGD("jm/debug vb format in: %s", AMediaFormat_toString(format));
+            LOGD("jm/debug vb format out: %s", AMediaFormat_toString(formatOut));
+
         }
 
         AMediaFormat_delete(format);
@@ -94,9 +101,12 @@ void MediaCodecSingleThreadExtractor::extractMetadata(AMediaFormat *format) {
     _file_total_frames = (unsigned int) (((double) _file_duration * (double) _device_frame_rate /
                                           1000000.0));
 
-    mediaCodecWorkerData.extractedData = (uint8_t *) calloc(_file_total_frames * _file_number_channels * 2,
-                                            sizeof(uint8_t));
-    mediaCodecWorkerData.soundSystem->setExtractedData(reinterpret_cast<short *>(mediaCodecWorkerData.extractedData));
+    LOGD("total frames %d", _file_total_frames);
+
+    mediaCodecWorkerData.extractedData = (uint8_t *) calloc(_file_total_frames * 2 * 2,
+                                                            sizeof(uint8_t));
+    mediaCodecWorkerData.soundSystem->setExtractedData(
+            reinterpret_cast<short *>(mediaCodecWorkerData.extractedData));
     mediaCodecWorkerData.soundSystem->setTotalNumberFrames(_file_total_frames);
 }
 
@@ -109,8 +119,11 @@ void MediaCodecSingleThreadExtractor::startExtractorThread() {
     pthread_detach(worker);
 }
 
+
 void *MediaCodecSingleThreadExtractor::doExtraction(void *) {
     MediaCodecWorkerData *d = &mediaCodecWorkerData;
+
+    uint8_t *writePos = d->extractedData;
 
     while (!d->sawInputEOS || !d->sawOutputEOS) {
         ssize_t bufidx;
@@ -150,6 +163,25 @@ void *MediaCodecSingleThreadExtractor::doExtraction(void *) {
                 size_t bufsize;
                 uint8_t *buf = AMediaCodec_getOutputBuffer(d->codec, (size_t) status, &bufsize);
 
+                //short *test = reinterpret_cast<short *>(buf);
+
+                //LOGD("Buf size %d should be %d 'frames' for %d channels short[0]=%d short[last]=%d",
+                //     bufsize,
+                //     bufsize / (2 * d->numberChannel), d->numberChannel, test[1151], test[1152]);
+
+
+                size_t dataSize = info.size;
+                writePos += dataSize;
+                memcpy(writePos, buf, bufsize);
+
+
+                media_status_t mstatus = AMediaCodec_releaseOutputBuffer(
+                        d->codec, status, false /* render */);
+                if (mstatus != AMEDIA_OK) {
+                    break;
+                }
+
+/*
                 if (d->format == RAW) {
                     memcpy(d->extractedData + d->extractionPosition, buf, bufsize);
                     // Force step of RAW_BUFFER_SIZE, it's like setting buf size to RAW_BUFFER_SIZE
@@ -161,10 +193,11 @@ void *MediaCodecSingleThreadExtractor::doExtraction(void *) {
                     d->extractionPosition += bufsize / d->numberChannel / 4;
                 } else {
                     memcpy(d->extractedData + d->extractionPosition, buf, bufsize);
-                    d->extractionPosition += bufsize / d->numberChannel;
+                    d->extractionPosition += bufsize / 2; // sizeof(uint8_t);
+                    LOGD("extraction position %d", d->extractionPosition);
                 }
-
                 AMediaCodec_releaseOutputBuffer(d->codec, (size_t) status, false);
+*/
 
             } else if (status == AMEDIACODEC_INFO_OUTPUT_BUFFERS_CHANGED) {
                 LOGV("output buffers changed");
@@ -183,3 +216,4 @@ void *MediaCodecSingleThreadExtractor::doExtraction(void *) {
     return NULL;
 }
 
+#endif // __ANDROID_API__ >= 21

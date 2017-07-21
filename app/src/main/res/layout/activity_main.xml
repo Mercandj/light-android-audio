@@ -53,6 +53,17 @@
             tools:ignore="SmallSp" />
 
         <Button
+            android:id="@+id/btn_extract_file_extraction_wrapper_thread"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="Extraction wrapper"
+            android:textAllCaps="false"
+            android:textSize="11sp"
+            tools:ignore="SmallSp" />
+
+        <Button
             android:id="@+id/btn_extract_file_opensl_native_thread"
             style="?android:attr/buttonStyleSmall"
             android:layout_width="match_parent"

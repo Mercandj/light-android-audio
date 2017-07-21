@@ -1,0 +1,166 @@
+apply plugin: 'com.android.model.native'
+
+ext {
+    extractorAndroidVersion = rootProject.ext.minSdkVersion
+}
+
+model {
+    android {
+        compileSdkVersion rootProject.ext.compileSdkVersion
+
+        defaultConfig.with {
+            minSdkVersion.apiLevel extractorAndroidVersion
+            targetSdkVersion.apiLevel extractorAndroidVersion
+        }
+    }
+
+    android.ndk {
+        moduleName = "soundextractor"
+        abiFilters.addAll(["armeabi", "armeabi-v7a", "x86", "mips"])
+        platformVersion = extractorAndroidVersion
+        cppFlags.addAll(["-std=c++11", "-fexceptions"])
+        CFlags.addAll(["-std=c99", "-fexceptions"])
+        stl "stlport_static"
+        if (extractorAndroidVersion >= 21) {
+            ldLibs.addAll(["log", "android", "atomic", "OpenSLES", "mediandk"])
+        } else {
+            ldLibs.addAll(["log", "android", "atomic", "OpenSLES"])
+        }
+    }
+
+    android.sources {
+        main {
+            jni {
+                exportedHeaders {
+                    srcDir "src/main/jni"
+                }
+            }
+        }
+    }
+}
+
+configurations {
+    // Expose the debug version of the library to other modules
+    debug
+    release
+}
+
+// By default, assemble of the native plugin
+// Do not build the static library, but only the shared library.
+// Hook the static library task in the assembleDebug/assembleRelease tasks
+tasks.whenTaskAdded { task ->
+    if (!task.name.startsWith("soundextractor")) {
+        return
+    }
+
+    if (task.name.endsWith("DebugStaticLibrary")) {
+        println "Hook debug static library in androidDebug (${task.name})"
+        tasks.getByName("androidDebug").dependsOn task
+    } else if (task.name.endsWith("ReleaseStaticLibrary")) {
+        println "Hook release static library in androidRelease (${task.name})"
+        tasks.getByName("androidRelease").dependsOn task
+    }
+}
+
+task(generateVersionFile) {
+    doLast {
+        def bufferOutput = new ByteArrayOutputStream()
+        // Get the last commit date
+        exec {
+            commandLine 'cmd', '/c', 'git show -s --format=%ci HEAD'
+            standardOutput = bufferOutput
+        }
+        def lastCommitDate = bufferOutput.toString()
+        bufferOutput.reset()
+
+        // Get the last commit sha1
+        exec {
+            commandLine 'cmd', '/c', 'git rev-parse HEAD'
+            standardOutput = bufferOutput
+        }
+        def lastCommitSha1 = bufferOutput.toString()
+        bufferOutput.reset()
+
+        // Get the sha1 of the last commit of the core submodule
+        exec {
+            workingDir './src/main/jni'
+            commandLine 'cmd', '/c', 'git rev-parse HEAD'
+            standardOutput = bufferOutput
+        }
+        def submoduleLastCommitSha1 = bufferOutput.toString()
+        bufferOutput.reset()
+
+        new File("distribute").mkdir()
+        def versionFile = new File("distribute/version.txt")
+        versionFile.withWriter { w ->
+            w << "Version information\n\n"
+            w << "Last commit\n"
+            w << lastCommitDate
+            w << lastCommitSha1 << '\n'
+            w << "Last soundextractor submodule commit\n"
+            w << submoduleLastCommitSha1
+        }
+    }
+}
+
+task(copyFileToDistribute, type: Copy) {
+    // Trigger the build of shared and static libraries
+    dependsOn assemble
+    dependsOn generateVersionFile
+    into '/build/distribute/'
+
+    from("../distribute") {
+        into 'shared/'
+        include "version.txt"
+    }
+    from("src/main/jni") {
+        into 'shared/include/'
+        include '**/*.h'
+    }
+    from('build/intermediates/binaries/debug/lib') {
+        into 'shared/lib/debug'
+        include '**/*.so'
+    }
+    from('build/intermediates/binaries/release/lib') {
+        into 'shared/lib/release'
+        include '**/*.so'
+    }
+
+    from("../distribute") {
+        into 'static/'
+        include "version.txt"
+    }
+    from("src/main/jni") {
+        into 'static/include/'
+        include '**/*.h'
+    }
+    from('build/intermediates/binaries/debug/lib') {
+        into 'static/lib/debug'
+        include '**/*.a'
+    }
+    from('build/intermediates/binaries/release/lib') {
+        into 'static/lib/release'
+        include '**/*.a'
+    }
+}
+
+task(zipStaticLibFiles, type: Zip) {
+    dependsOn copyFileToDistribute
+    from '/build/distribute/static'
+    archiveName 'soundextractor_static.zip'
+    destinationDir file('../distribute')
+}
+
+task(zipSharedLibFiles, type: Zip) {
+    dependsOn copyFileToDistribute
+    from '/build/distribute/shared'
+    archiveName 'soundextractor_shared.zip'
+    destinationDir file('../distribute')
+}
+
+task(distributeLib) {
+    dependsOn zipSharedLibFiles
+    dependsOn zipStaticLibFiles
+}
+
+

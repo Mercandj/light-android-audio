@@ -11,15 +11,17 @@
 #include <audio/extractor/FFmpegSingleThreadExtractor.h>
 
 #include "audio/extractor/MediaCodecSingleThreadExtractor.h"
-
+#include "SoundExtractorManager.h"
 
 #include "audio/SoundSystem.h"
 #include "listener/SoundSystemCallback.h"
+
 #ifdef AAUDIO
 #include "aaudio/AAudioManager.h"
 #endif
 
 static SoundSystem *_soundSystem;
+static SoundExtractorManager *_soundExtractorManager;
 
 static SoundSystemCallback *_soundSystemCallback;
 
@@ -42,6 +44,11 @@ void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1init_1
         jint sample_rate,
         jint frames_per_buf);
 
+void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1extraction_1wrapper(
+        JNIEnv *env,
+        jclass jclass1,
+        jobjectArray filePaths);
+
 void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1load_1file_1open_1sl(
         JNIEnv *env,
         jclass jclass1,
@@ -57,7 +64,8 @@ void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1load_1
         jclass jclass1,
         jstring filePath);
 
-void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1load_1file_1ffmpeg_1synchronous(
+void
+Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1load_1file_1ffmpeg_1synchronous(
         JNIEnv *env,
         jclass jclass1,
         jstring filePath);
@@ -87,11 +95,13 @@ void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1releas
         JNIEnv *env,
         jclass jclass1);
 
-jshortArray Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1get_1extracted_1data(
+jshortArray
+Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1get_1extracted_1data(
         JNIEnv *env,
         jclass jclass1);
 
-jshortArray Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1get_1extracted_1data_1mono(
+jshortArray
+Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1get_1extracted_1data_1mono(
         JNIEnv *env,
         jclass jclass1);
 }

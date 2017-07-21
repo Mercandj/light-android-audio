@@ -47,6 +47,16 @@ class SoundSystemImpl implements SoundSystem {
     /**
      * Load track file into the RAM.
      *
+     * @param filePaths Path of the file on the hard disk.
+     */
+    public void loadViaExtractionWrapper(final String[] filePaths) {
+        Preconditions.checkNotNull(filePaths);
+        soundSystemEntryPoint.native_extraction_wrapper(filePaths);
+    }
+
+    /**
+     * Load track file into the RAM.
+     *
      * @param filePath Path of the file on the hard disk.
      */
     public void loadFileOpenSl(final String filePath) {

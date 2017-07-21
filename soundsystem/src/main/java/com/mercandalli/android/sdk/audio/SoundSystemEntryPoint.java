@@ -163,6 +163,9 @@ class SoundSystemEntryPoint {
     native boolean native_is_soundsystem_init();
 
     /* package */
+    native void native_extraction_wrapper(String[] filePaths);
+
+    /* package */
     native void native_load_file_open_sl(String filePath);
 
     /* package */

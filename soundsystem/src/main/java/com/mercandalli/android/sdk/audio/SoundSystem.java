@@ -43,6 +43,8 @@ public interface SoundSystem {
 
     boolean isSoundSystemInit();
 
+    void loadViaExtractionWrapper(final String[] filePaths);
+
     /**
      * Load track file into the RAM.
      *

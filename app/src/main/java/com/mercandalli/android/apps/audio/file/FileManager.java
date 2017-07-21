@@ -14,6 +14,7 @@ public interface FileManager {
     @StringDef({
             FORMAT_AAC,
             FORMAT_MP3,
+            FORMAT_MP3_MONO,
             FORMAT_OGG,
             FORMAT_WAV})
     @interface TrackFormat {
@@ -21,6 +22,7 @@ public interface FileManager {
 
     String FORMAT_AAC = "FORMAT_AAC";
     String FORMAT_MP3 = "FORMAT_MP3";
+    String FORMAT_MP3_MONO = "FORMAT_MP3_MONO";
     String FORMAT_OGG = "FORMAT_OGG";
     String FORMAT_WAV = "FORMAT_WAV";
 

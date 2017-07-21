@@ -1,4 +1,4 @@
-#include "SoundsystemEntrypoint.h"
+#include "SoundSystemEntryPoint.h"
 
 void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1init_1soundsystem(
         JNIEnv *env,
@@ -25,12 +25,27 @@ void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1init_1
 #endif
 
     _soundSystem->initAudioPlayer();
+
+    _soundExtractorManager = new SoundExtractorManager(sample_rate, frames_per_buf);
 }
 
 jboolean Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1is_1soundsystem_1init(
         JNIEnv *env,
         jclass jclass1) {
     return (jboolean) isSoundSystemInit();
+}
+
+void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1extraction_1wrapper(
+        JNIEnv *env,
+        jclass jclass1,
+        jobjectArray filePathJString) {
+    int stringCount = env->GetArrayLength(filePathJString);
+    const char **filePaths = (const char **) calloc(stringCount, sizeof(char *));
+    for (int i = 0; i < stringCount; i++) {
+        jstring string = (jstring) (env->GetObjectArrayElement(filePathJString, i));
+        filePaths[i] = env->GetStringUTFChars(string, 0);
+    }
+    _soundExtractorManager->extract(EXTRACTION_METHOD_AUTO, filePaths, stringCount);
 }
 
 void Java_com_mercandalli_android_sdk_audio_SoundSystemEntryPoint_native_1load_1file_1open_1sl(

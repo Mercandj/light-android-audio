@@ -1,6 +1,4 @@
-//
-// Created by Frederic on 26/03/2017.
-//
+#if __ANDROID_API__ >= 21
 
 #ifndef MINI_SOUND_SYSTEM_MediaCodecSingleThreadExtractor_H
 #define MINI_SOUND_SYSTEM_MediaCodecSingleThreadExtractor_H
@@ -70,4 +68,6 @@ private:
     static void *doExtraction(void*);
 };
 
-#endif //MINI_SOUND_SYSTEM_MediaCodecSingleThreadExtractor_H
+#endif // MINI_SOUND_SYSTEM_MediaCodecSingleThreadExtractor_H
+
+#endif // __ANDROID_API__ >= 21

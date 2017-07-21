@@ -7,11 +7,11 @@ model {
 
     android.ndk {
         moduleName = "soundsystem"
-        ldLibs.addAll(["log", "android", "atomic", "OpenSLES", "mediandk"])
+        ldLibs.addAll(["log", "android", "atomic", "OpenSLES"])
         abiFilters.addAll(["armeabi", "armeabi-v7a", "x86"])
 
         if (minSdkVersion >= 26) {
-            ldLibs.addAll(["aaudio"])
+            ldLibs.addAll(["mediandk", "aaudio"])
             cppFlags.addAll(["-DAAUDIO", "-DMEDIACODEC_EXTRACTOR"])
             CFlags.addAll(["-DAAUDIO", "-DMEDIACODEC_EXTRACTOR"])
             stl "c++_static" // to access to 'thread' header, we did gnustl_static or c++_static
@@ -21,6 +21,7 @@ model {
             CFlags.addAll(["-DMEDIACODEC_EXTRACTOR"])
             stl "stlport_static"
         } else if (rootProject.ext.minSdkVersion >= 21) {
+            ldLibs.addAll(["mediandk"])
             cppFlags.addAll(["-DMEDIACODEC_EXTRACTOR", "-DFLOAT_PLAYER"])
             CFlags.addAll(["-DMEDIACODEC_EXTRACTOR", "-DFLOAT_PLAYER"])
             stl "stlport_static"
@@ -40,6 +41,7 @@ model {
                     srcDir "src/main/jni"
                 }
                 dependencies {
+                    project ":soundextractornative" linkage "shared"
                     library "libavcodec" linkage "shared"
                     library "libavformat" linkage "shared"
                     library "libavutil" linkage "shared"

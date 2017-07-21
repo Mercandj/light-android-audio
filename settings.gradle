@@ -1,1 +1,1 @@
-include ':app', ':soundsystemnative', ':soundsystem'
+include ':app', ':soundsystemnative', ':soundsystem', ':soundextractornative'
