@@ -4,9 +4,10 @@
     <string name="activity_main_file_spinner_prompt">Choose a file to extract/play</string>
 
     <string-array name="activity_main_file_spinner_arrays">
-        <item>AAC over_the_horizon file (internal str.)</item>
-        <item>MP3 over_the_horizon file (internal str.)</item>
-        <item>WAV over_the_horizon file (internal str.)</item>
+        <item>AAC over_the_horizon (internal str.)</item>
+        <item>MP3 over_the_horizon (internal str.)</item>
+        <item>OGG over_the_horizon (internal str.)</item>
+        <item>WAV over_the_horizon (internal str.)</item>
     </string-array>
 
 </resources>

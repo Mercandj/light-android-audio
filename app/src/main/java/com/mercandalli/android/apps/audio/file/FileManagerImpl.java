@@ -14,10 +14,12 @@ import java.util.List;
 
     private static final String ASSET_FILE_NAME_AAC = "over_the_horizon.aac";
     private static final String ASSET_FILE_NAME_MP3 = "over_the_horizon.mp3";
+    private static final String ASSET_FILE_NAME_OGG = "over_the_horizon.ogg";
     private static final String ASSET_FILE_NAME_WAV = "over_the_horizon.wav";
 
     private static final String FILE_NAME_AAC = "over_the_horizon.aac";
     private static final String FILE_NAME_MP3 = "over_the_horizon.mp3";
+    private static final String FILE_NAME_OGG = "over_the_horizon.ogg";
     private static final String FILE_NAME_WAV = "over_the_horizon.wav";
 
     private String fileDir;
@@ -26,6 +28,7 @@ import java.util.List;
     private boolean initialized;
     private File fileAAC;
     private File fileMP3;
+    private File fileOGG;
     private File fileWAV;
     @TrackFormat
     private String trackFormat;
@@ -46,6 +49,7 @@ import java.util.List;
         // Should be async...
         initialized = extractAsset(fileDir, FORMAT_AAC);
         initialized &= extractAsset(fileDir, FORMAT_MP3);
+        initialized &= extractAsset(fileDir, FORMAT_OGG);
         initialized &= extractAsset(fileDir, FORMAT_WAV);
         if (!initialized) {
             throw new IllegalStateException("Cannot copy files from assets.");
@@ -75,6 +79,8 @@ import java.util.List;
         switch (trackFormat) {
             case FORMAT_AAC:
                 return fileAAC;
+            case FORMAT_OGG:
+                return fileOGG;
             case FORMAT_WAV:
                 return fileWAV;
             case FORMAT_MP3:
@@ -105,6 +111,10 @@ import java.util.List;
                 case FORMAT_AAC:
                     in = assetManager.open(ASSET_FILE_NAME_AAC);
                     file = fileAAC = new File(outDir, FILE_NAME_AAC);
+                    break;
+                case FORMAT_OGG:
+                    in = assetManager.open(ASSET_FILE_NAME_OGG);
+                    file = fileOGG = new File(outDir, FILE_NAME_OGG);
                     break;
                 case FORMAT_WAV:
                     in = assetManager.open(ASSET_FILE_NAME_WAV);

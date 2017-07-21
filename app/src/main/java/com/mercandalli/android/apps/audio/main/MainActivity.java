@@ -175,6 +175,9 @@ public class MainActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 @FileManager.TrackFormat
                 String trackFormat = spinnerPositionToTrackFormat(position);
+                if (FileManager.FORMAT_OGG.equals(trackFormat)) {
+                    log("OGG extraction is flaky");
+                }
                 fileManager.setTrackFormat(trackFormat);
             }
 
@@ -193,8 +196,10 @@ public class MainActivity extends AppCompatActivity {
                 return 0;
             case FileManager.FORMAT_MP3:
                 return 1;
-            case FileManager.FORMAT_WAV:
+            case FileManager.FORMAT_OGG:
                 return 2;
+            case FileManager.FORMAT_WAV:
+                return 3;
         }
         return 0;
     }
@@ -207,6 +212,8 @@ public class MainActivity extends AppCompatActivity {
             case 1:
                 return FileManager.FORMAT_MP3;
             case 2:
+                return FileManager.FORMAT_OGG;
+            case 3:
                 return FileManager.FORMAT_WAV;
         }
         return FileManager.FORMAT_AAC;
@@ -264,7 +271,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-        log("Available codecs : \n" + stringBuilder.toString());
+        log("\nAvailable codecs : \n" + stringBuilder.toString());
     }
 
     @SuppressLint("SetTextI18n")

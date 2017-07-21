@@ -14,12 +14,14 @@ public interface FileManager {
     @StringDef({
             FORMAT_AAC,
             FORMAT_MP3,
+            FORMAT_OGG,
             FORMAT_WAV})
     @interface TrackFormat {
     }
 
     String FORMAT_AAC = "FORMAT_AAC";
     String FORMAT_MP3 = "FORMAT_MP3";
+    String FORMAT_OGG = "FORMAT_OGG";
     String FORMAT_WAV = "FORMAT_WAV";
 
     void initialize();
